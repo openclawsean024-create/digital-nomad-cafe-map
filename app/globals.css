@@ -6,14 +6,18 @@
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 249, 250, 251;
   --background-end-rgb: 255, 255, 255;
+  --bg-primary: #ffffff;
+  --text-primary: #111827;
+  --border-color: #e5e7eb;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 17, 24, 39;
-    --background-end-rgb: 17, 24, 39;
-  }
+.dark {
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 17, 24, 39;
+  --background-end-rgb: 17, 24, 39;
+  --bg-primary: #1f2937;
+  --text-primary: #f9fafb;
+  --border-color: #374151;
 }
 
 body {
@@ -24,6 +28,31 @@ body {
       rgb(var(--background-end-rgb))
     )
     rgb(var(--background-start-rgb));
+}
+
+/* Dark mode support for components */
+.bg-white { background-color: var(--bg-primary); }
+.bg-gray-50 { background-color: var(--bg-primary); opacity: 0.7; }
+.bg-gray-100 { background-color: var(--bg-primary); }
+.text-gray-900 { color: var(--text-primary); }
+.text-gray-700 { color: var(--text-primary); }
+.text-gray-500 { color: var(--text-primary); opacity: 0.7; }
+.text-gray-400 { color: var(--text-primary); opacity: 0.5; }
+.border-gray-200 { border-color: var(--border-color); }
+.border-gray-300 { border-color: var(--border-color); }
+
+/* Leaflet dark mode */
+.dark .leaflet-container {
+  background: #1a1a2e;
+}
+
+.dark .leaflet-popup-content-wrapper {
+  background: #1f2937;
+  color: #f9fafb;
+}
+
+.dark .leaflet-popup-tip {
+  background: #1f2937;
 }
 
 /* Leaflet popup custom styles */

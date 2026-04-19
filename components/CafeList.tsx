@@ -50,12 +50,12 @@ export default function CafeList({ cafes, onEdit, onDelete, onSelect }: CafeList
           placeholder="Search cafes..."
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
         />
         <select
           value={sortBy}
           onChange={e => setSortBy(e.target.value as 'name' | 'wifi' | 'quiet')}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-md border border-gray-300 dark:border-gray-600 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
         >
           <option value="name">Sort: Name</option>
           <option value="wifi">Sort: WiFi</option>
@@ -67,17 +67,17 @@ export default function CafeList({ cafes, onEdit, onDelete, onSelect }: CafeList
         {filtered.map(cafe => (
           <div
             key={cafe.id}
-            className="bg-white border border-gray-200 rounded-lg p-3 hover:border-blue-300 transition-colors cursor-pointer"
+            className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:border-blue-300 dark:hover:border-blue-500 transition-colors cursor-pointer"
             onClick={() => onSelect(cafe)}
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-medium text-sm text-gray-900">{cafe.name}</h3>
-                <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{cafe.address}</p>
+                <h3 className="font-medium text-sm text-gray-900 dark:text-white">{cafe.name}</h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{cafe.address}</p>
               </div>
               <button
                 onClick={e => { e.stopPropagation(); onEdit(cafe); }}
-                className="text-xs text-blue-600 hover:text-blue-800 font-medium ml-2 shrink-0"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium ml-2 shrink-0"
               >
                 Edit
               </button>
@@ -94,7 +94,7 @@ export default function CafeList({ cafes, onEdit, onDelete, onSelect }: CafeList
               </span>
             </div>
             {cafe.notes && (
-              <p className="text-xs text-gray-600 mt-1.5 italic line-clamp-1">"{cafe.notes}"</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5 italic line-clamp-1">"{cafe.notes}"</p>
             )}
           </div>
         ))}
