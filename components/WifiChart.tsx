@@ -41,9 +41,10 @@ export default function WifiChart({ cafes }: WifiChartProps) {
               cursor={{ fill: 'rgba(0,0,0,0.05)' }}
               contentStyle={{
                 fontSize: 11,
-                background: 'var(--tooltip-bg, #fff)',
-                border: '1px solid var(--tooltip-border, #e5e7eb)',
+                background: '#ffffff',
+                border: '1px solid #e5e7eb',
                 borderRadius: 6,
+                color: '#374151',
               }}
               labelStyle={{ fontWeight: 600 }}
             />

@@ -3,10 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Cafe, CafeInput } from '@/types/cafe';
+import { StarbucksStore } from '@/types/starbucks';
+import { starbucksStores } from '@/data/starbucks-mock';
 import { getCafes, addCafe, updateCafe, deleteCafe } from '@/lib/data';
 import CafeList from '@/components/CafeList';
 import CafeForm from '@/components/CafeForm';
 import DetailPanel from '@/components/DetailPanel';
+import StarbucksLegend from '@/components/StarbucksLegend';
 
 // Dynamically import map and chart to avoid SSR issues with Leaflet/recharts
 const CafeMap = dynamic(() => import('@/components/CafeMap'), { ssr: false });
@@ -18,9 +21,11 @@ export default function Home() {
   const [cafes, setCafes] = useState<Cafe[]>([]);
   const [view, setView] = useState<View>('list');
   const [selectedCafe, setSelectedCafe] = useState<Cafe | null>(null);
+  const [selectedStarbucks, setSelectedStarbucks] = useState<StarbucksStore | null>(null);
   const [editingCafe, setEditingCafe] = useState<Cafe | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([20, 0]);
   const [darkMode, setDarkMode] = useState(false);
+  const [showStarbucks, setShowStarbucks] = useState(false);
 
   // Initialize dark mode from localStorage and system preference
   useEffect(() => {
@@ -83,7 +88,14 @@ export default function Home() {
 
   const handleSelect = (cafe: Cafe) => {
     setSelectedCafe(cafe);
+    setSelectedStarbucks(null);
     setMapCenter([cafe.lat, cafe.lng]);
+  };
+
+  const handleStarbucksSelect = (store: StarbucksStore) => {
+    setSelectedStarbucks(store);
+    setSelectedCafe(null);
+    setMapCenter([store.lat, store.lng]);
   };
 
   const handleEdit = (cafe: Cafe) => {
@@ -101,6 +113,15 @@ export default function Home() {
             <p className="text-blue-100 text-xs mt-0.5">Find the perfect cafe to work from anywhere</p>
           </div>
           <div className="flex gap-2 items-center">
+            <button
+              onClick={() => setShowStarbucks(prev => !prev)}
+              className={`bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                showStarbucks ? 'ring-2 ring-white ring-offset-2 ring-offset-blue-600' : ''
+              }`}
+              title={showStarbucks ? 'Hide Starbucks' : 'Show Starbucks'}
+            >
+              ★ {showStarbucks ? 'Starbucks ON' : 'Starbucks'}
+            </button>
             <button
               onClick={() => setDarkMode(prev => !prev)}
               className="bg-blue-700 hover:bg-blue-800 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5"
@@ -152,11 +173,21 @@ export default function Home() {
               <WifiChart cafes={cafes} />
             )}
 
-            {/* Detail Panel - shows when a cafe is selected */}
+            {/* Legend */}
+            <StarbucksLegend />
+
+            {/* Detail Panel - shows when a cafe or starbucks is selected */}
             {selectedCafe && view === 'list' && (
               <DetailPanel
                 cafe={selectedCafe}
                 onClose={() => setSelectedCafe(null)}
+              />
+            )}
+            {selectedStarbucks && view === 'list' && (
+              <DetailPanel
+                cafe={null}
+                starbucksStore={selectedStarbucks}
+                onClose={() => setSelectedStarbucks(null)}
               />
             )}
 
@@ -165,9 +196,13 @@ export default function Home() {
               {view === 'list' && (
                 <CafeList
                   cafes={cafes}
+                  starbucksData={starbucksStores}
+                  showStarbucks={showStarbucks}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
                   onSelect={handleSelect}
+                  onToggleStarbucks={setShowStarbucks}
+                  onStarbucksSelect={handleStarbucksSelect}
                 />
               )}
 
@@ -205,8 +240,11 @@ export default function Home() {
             <div className="h-[500px] lg:h-[600px]">
               <CafeMap
                 cafes={cafes}
+                starbucksData={showStarbucks ? starbucksStores : []}
+                showStarbucks={showStarbucks}
                 center={mapCenter}
                 onMarkerClick={handleSelect}
+                onStarbucksClick={handleStarbucksSelect}
               />
             </div>
           </div>

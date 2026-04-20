@@ -1,9 +1,11 @@
 'use client';
 
 import { Cafe } from '@/types/cafe';
+import { StarbucksStore } from '@/types/starbucks';
 
 interface DetailPanelProps {
   cafe: Cafe | null;
+  starbucksStore?: StarbucksStore | null;
   onClose: () => void;
 }
 
@@ -51,7 +53,59 @@ function QuietIndicator({ level }: { level: number }) {
   );
 }
 
-export default function DetailPanel({ cafe, onClose }: DetailPanelProps) {
+// Starbucks detail view
+function StarbucksPanel({ store }: { store: StarbucksStore }) {
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-800 p-4 shadow-sm">
+      {/* Header */}
+      <div className="flex justify-between items-start mb-3">
+        <div className="flex-1">
+          <div className="flex items-center gap-1.5 mb-1">
+            <span className="text-green-600 font-bold">★</span>
+            <h3 className="font-semibold text-green-700 dark:text-green-400 text-base leading-tight">{store.name}</h3>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-snug">{store.address}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{store.phone}</p>
+        </div>
+      </div>
+
+      {/* Features */}
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        {store.features.map(f => (
+          <div key={f} className="bg-green-50 dark:bg-green-900/30 rounded-md px-2 py-1.5 text-center">
+            <span className="text-xs text-green-700 dark:text-green-300 font-medium">{f}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Coordinates */}
+      <div className="text-[10px] text-gray-400 dark:text-gray-500 mb-3 font-mono">
+        📍 {store.lat.toFixed(4)}, {store.lng.toFixed(4)}
+      </div>
+    </div>
+  );
+}
+
+export default function DetailPanel({ cafe, starbucksStore, onClose }: DetailPanelProps) {
+  // Show Starbucks store if provided
+  if (starbucksStore) {
+    return (
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-green-600 dark:text-green-400 uppercase tracking-wide">★ Selected Store</span>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-lg leading-none"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+        <StarbucksPanel store={starbucksStore} />
+      </div>
+    );
+  }
+
   if (!cafe) return null;
 
   return (
