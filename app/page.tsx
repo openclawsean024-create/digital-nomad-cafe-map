@@ -8,8 +8,9 @@ import CafeList from '@/components/CafeList';
 import CafeForm from '@/components/CafeForm';
 import DetailPanel from '@/components/DetailPanel';
 
-// Dynamically import map to avoid SSR issues with Leaflet
+// Dynamically import map and chart to avoid SSR issues with Leaflet/recharts
 const CafeMap = dynamic(() => import('@/components/CafeMap'), { ssr: false });
+const WifiChart = dynamic(() => import('@/components/WifiChart'), { ssr: false });
 
 type View = 'list' | 'add' | 'edit';
 
@@ -145,6 +146,11 @@ export default function Home() {
                 </div>
               </div>
             </div>
+
+            {/* WiFi Chart */}
+            {cafes.length > 0 && (
+              <WifiChart cafes={cafes} />
+            )}
 
             {/* Detail Panel - shows when a cafe is selected */}
             {selectedCafe && view === 'list' && (
