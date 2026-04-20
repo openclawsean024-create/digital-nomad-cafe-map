@@ -1,1 +1,1 @@
-declare module 'rechart';
+declare module 'recharts';
