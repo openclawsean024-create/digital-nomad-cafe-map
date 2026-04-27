@@ -7,12 +7,30 @@ import { getCafes, addCafe, updateCafe, deleteCafe } from '@/lib/data';
 import CafeList from '@/components/CafeList';
 import CafeForm from '@/components/CafeForm';
 import DetailPanel from '@/components/DetailPanel';
+import AddStarbucks from '@/components/AddStarbucks';
 
 // Dynamically import map and chart to avoid SSR issues with Leaflet/recharts
 const CafeMap = dynamic(() => import('@/components/CafeMap'), { ssr: false });
 const WifiChart = dynamic(() => import('@/components/WifiChart'), { ssr: false });
 
 type View = 'list' | 'add' | 'edit';
+
+// Schema.org JSON-LD
+const schemaJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Digital Nomad Cafe Map',
+  description: '探索全球適合遠距工作的咖啡廳',
+  url: 'https://digital-nomad-cafe-map.vercel.app',
+  applicationCategory: 'TravelApplication',
+  operatingSystem: 'Web Browser',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'TWD',
+    description: '免費版基本功能',
+  },
+};
 
 export default function Home() {
   const [cafes, setCafes] = useState<Cafe[]>([]);
@@ -42,6 +60,19 @@ export default function Home() {
     }
     localStorage.setItem('nomad-cafe-dark', String(darkMode));
   }, [darkMode]);
+
+  // Parse URL params (?cafe=<id>) to auto-select a cafe
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cafeId = params.get('cafe');
+    if (cafeId && cafes.length > 0) {
+      const found = cafes.find(c => c.id === cafeId);
+      if (found) {
+        setSelectedCafe(found);
+        setMapCenter([found.lat, found.lng]);
+      }
+    }
+  }, [cafes]);
 
   const loadCafes = useCallback(() => {
     const data = getCafes();
@@ -91,134 +122,158 @@ export default function Home() {
     setView('edit');
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      {/* Header */}
-      <header className="bg-blue-600 text-white shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">🌍 Digital Nomad Cafe Map</h1>
-            <p className="text-blue-100 text-xs mt-0.5">Find the perfect cafe to work from anywhere</p>
-          </div>
-          <div className="flex gap-2 items-center">
-            <button
-              onClick={() => setDarkMode(prev => !prev)}
-              className="bg-blue-700 hover:bg-blue-800 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5"
-              title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            >
-              {darkMode ? '☀️' : '🌙'}
-            </button>
-            {view === 'list' && (
-              <button
-                onClick={() => setView('add')}
-                className="bg-white text-blue-600 px-4 py-2 rounded-md text-sm font-semibold hover:bg-blue-50 transition-colors"
-              >
-                + Add Cafe
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
+  const handleShare = async (cafe: Cafe) => {
+    const url = `https://digital-nomad-cafe-map.vercel.app/?cafe=${cafe.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: cafe.name, text: `Check out ${cafe.name} on the Digital Nomad Cafe Map`, url });
+      } catch { /* cancelled */ }
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    }
+  };
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
-            {/* Stats Bar */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{cafes.length}</div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Cafes</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {cafes.length > 0 ? (cafes.reduce((s, c) => s + c.wifiQuality, 0) / cafes.length).toFixed(1) : '0'}
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaJsonLd) }} />
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+        {/* Header */}
+        <header className="bg-blue-600 text-white shadow-md">
+          <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-bold tracking-tight">🌍 Digital Nomad Cafe Map</h1>
+              <p className="text-blue-100 text-xs mt-0.5">Find the perfect cafe to work from anywhere</p>
+            </div>
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={() => setDarkMode(prev => !prev)}
+                className="bg-blue-700 hover:bg-blue-800 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-1.5"
+                title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {darkMode ? '☀️' : '🌙'}
+              </button>
+              {view === 'list' && (
+                <button
+                  onClick={() => setView('add')}
+                  className="bg-white text-blue-600 px-4 py-2 rounded-md text-sm font-semibold hover:bg-blue-50 transition-colors"
+                >
+                  + Add Cafe
+                </button>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="max-w-7xl mx-auto px-4 py-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Sidebar */}
+            <div className="lg:col-span-1 space-y-4">
+              {/* Stats Bar */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{cafes.length}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Cafes</div>
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Avg WiFi</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                    {cafes.filter(c => c.quietness === 3).length}
+                  <div>
+                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                      {cafes.length > 0 ? (cafes.reduce((s, c) => s + c.wifiQuality, 0) / cafes.length).toFixed(1) : '0'}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Avg WiFi</div>
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">Quiet</div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                      {cafes.filter(c => c.quietness === 3).length}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">Quiet</div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* WiFi Chart */}
-            {cafes.length > 0 && (
-              <WifiChart cafes={cafes} />
-            )}
+              {/* WiFi Chart */}
+              {cafes.length > 0 && (
+                <WifiChart cafes={cafes} />
+              )}
 
-            {/* Detail Panel - shows when a cafe is selected */}
-            {selectedCafe && view === 'list' && (
-              <DetailPanel
-                cafe={selectedCafe}
-                onClose={() => setSelectedCafe(null)}
-              />
-            )}
-
-            {/* Panel */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-              {view === 'list' && (
-                <CafeList
-                  cafes={cafes}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onSelect={handleSelect}
+              {/* Detail Panel - shows when a cafe is selected */}
+              {selectedCafe && view === 'list' && (
+                <DetailPanel
+                  cafe={selectedCafe}
+                  onClose={() => setSelectedCafe(null)}
+                  onShare={() => handleShare(selectedCafe)}
                 />
               )}
 
-              {view === 'add' && (
-                <div>
-                  <h2 className="text-base font-semibold mb-3 text-gray-900 dark:text-white">Add New Cafe</h2>
-                  <CafeForm
-                    onSubmit={handleAdd}
-                    onCancel={() => setView('list')}
-                  />
-                </div>
-              )}
+              {/* Panel */}
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+                {view === 'list' && (
+                  <div>
+                    <AddStarbucks onAdd={newCafe => {
+                      setCafes(prev => [...prev, newCafe]);
+                      setSelectedCafe(newCafe);
+                      setMapCenter([newCafe.lat, newCafe.lng]);
+                      setView('list');
+                    }} />
+                    <CafeList
+                      cafes={cafes}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onSelect={handleSelect}
+                    />
+                  </div>
+                )}
 
-              {view === 'edit' && editingCafe && (
-                <div>
-                  <h2 className="text-base font-semibold mb-3 text-gray-900 dark:text-white">Edit Cafe</h2>
-                  <CafeForm
-                    cafe={editingCafe}
-                    onSubmit={handleUpdate}
-                    onCancel={() => { setEditingCafe(null); setView('list'); }}
-                  />
-                  <button
-                    onClick={() => handleDelete(editingCafe.id)}
-                    className="mt-3 w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md py-2 text-sm transition-colors"
-                  >
-                    Delete this cafe
-                  </button>
-                </div>
-              )}
+                {view === 'add' && (
+                  <div>
+                    <h2 className="text-base font-semibold mb-3 text-gray-900 dark:text-white">Add New Cafe</h2>
+                    <CafeForm
+                      onSubmit={handleAdd}
+                      onCancel={() => setView('list')}
+                    />
+                  </div>
+                )}
+
+                {view === 'edit' && editingCafe && (
+                  <div>
+                    <h2 className="text-base font-semibold mb-3 text-gray-900 dark:text-white">Edit Cafe</h2>
+                    <CafeForm
+                      cafe={editingCafe}
+                      onSubmit={handleUpdate}
+                      onCancel={() => { setEditingCafe(null); setView('list'); }}
+                    />
+                    <button
+                      onClick={() => handleDelete(editingCafe.id)}
+                      className="mt-3 w-full text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md py-2 text-sm transition-colors"
+                    >
+                      Delete this cafe
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Map */}
+            <div className="lg:col-span-2">
+              <div className="h-[500px] lg:h-[600px]">
+                <CafeMap
+                  cafes={cafes}
+                  center={mapCenter}
+                  onMarkerClick={handleSelect}
+                />
+              </div>
             </div>
           </div>
+        </main>
 
-          {/* Map */}
-          <div className="lg:col-span-2">
-            <div className="h-[500px] lg:h-[600px]">
-              <CafeMap
-                cafes={cafes}
-                center={mapCenter}
-                onMarkerClick={handleSelect}
-              />
-            </div>
+        {/* Footer */}
+        <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-8">
+          <div className="max-w-7xl mx-auto px-4 py-4 text-center text-xs text-gray-400 dark:text-gray-500">
+            Built for digital nomads · Data stored locally in your browser
           </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-8">
-        <div className="max-w-7xl mx-auto px-4 py-4 text-center text-xs text-gray-400 dark:text-gray-500">
-          Built for digital nomads · Data stored locally in your browser
-        </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </>
   );
 }

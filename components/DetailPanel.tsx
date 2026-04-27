@@ -5,6 +5,7 @@ import { Cafe } from '@/types/cafe';
 interface DetailPanelProps {
   cafe: Cafe | null;
   onClose: () => void;
+  onShare?: () => void;
 }
 
 function WifiBar({ quality }: { quality: number }) {
@@ -51,7 +52,7 @@ function QuietIndicator({ level }: { level: number }) {
   );
 }
 
-export default function DetailPanel({ cafe, onClose }: DetailPanelProps) {
+export default function DetailPanel({ cafe, onClose, onShare }: DetailPanelProps) {
   if (!cafe) return null;
 
   return (
@@ -98,6 +99,26 @@ export default function DetailPanel({ cafe, onClose }: DetailPanelProps) {
           <p className="text-xs text-gray-600 dark:text-gray-300 italic leading-relaxed">"{cafe.notes}"</p>
         </div>
       )}
+
+      {/* Actions */}
+      <div className="flex gap-2 mt-3 border-t border-gray-100 dark:border-gray-700 pt-3">
+        {onShare && (
+          <button
+            onClick={onShare}
+            className="flex-1 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 dark:hover:bg-blue-900/50 text-blue-600 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-md py-1.5 text-xs font-medium transition-colors flex items-center justify-center gap-1"
+          >
+            🔗 Share
+          </button>
+        )}
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${cafe.lat},${cafe.lng}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex-1 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-600 rounded-md py-1.5 text-xs font-medium transition-colors flex items-center justify-center gap-1"
+        >
+          🗺️ Google Maps
+        </a>
+      </div>
     </div>
   );
 }
