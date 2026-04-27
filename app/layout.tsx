@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     siteName: 'Digital Nomad Cafe Map',
     images: [
       {
-        url: '/og-image.svg',
+        url: 'https://digital-nomad-cafe-map.vercel.app/api/og',
         width: 1200,
         height: 630,
       },
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: '全球數位牧民咖啡廳地圖',
     description: '找到適合遠距工作的完美咖啡廳',
-    images: ['/og-image.svg'],
+    images: ['https://digital-nomad-cafe-map.vercel.app/api/og'],
   },
   robots: {
     index: true,

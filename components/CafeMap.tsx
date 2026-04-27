@@ -2,6 +2,7 @@
 
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { Cafe } from '@/types/cafe';
+import { StarbucksStore } from '@/types/starbucks';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -24,13 +25,24 @@ function MapController({ center }: { center: [number, number] }) {
   return null;
 }
 
+// Starbucks marker icon
+const starbucksIcon = L.icon({
+  iconUrl: '/starbucks-marker.png',
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40],
+});
+
 interface CafeMapProps {
   cafes: Cafe[];
+  starbucksData?: StarbucksStore[];
+  showStarbucks?: boolean;
   center?: [number, number];
   onMarkerClick?: (cafe: Cafe) => void;
+  onStarbucksClick?: (store: StarbucksStore) => void;
 }
 
-export default function CafeMap({ cafes, center, onMarkerClick }: CafeMapProps) {
+export default function CafeMap({ cafes, starbucksData = [], showStarbucks = false, center, onMarkerClick, onStarbucksClick }: CafeMapProps) {
   const defaultCenter: [number, number] = center ?? [20, 0];
 
   return (
@@ -74,6 +86,32 @@ export default function CafeMap({ cafes, center, onMarkerClick }: CafeMapProps) 
                 {cafe.notes && (
                   <p className="text-xs text-gray-700 mt-2 italic">{cafe.notes}</p>
                 )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+        {showStarbucks && starbucksData.map(store => (
+          <Marker
+            key={store.id}
+            position={[store.lat, store.lng]}
+            icon={starbucksIcon}
+            eventHandlers={{
+              click: () => onStarbucksClick?.(store),
+            }}
+          >
+            <Popup>
+              <div className="min-w-[200px]">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <span className="text-green-600 font-bold text-sm">★</span>
+                  <h3 className="font-semibold text-base text-green-700">{store.name}</h3>
+                </div>
+                <p className="text-xs text-gray-600">{store.address}</p>
+                <p className="text-xs text-gray-500 mt-1">{store.phone}</p>
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {store.features.map(f => (
+                    <span key={f} className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded">{f}</span>
+                  ))}
+                </div>
               </div>
             </Popup>
           </Marker>

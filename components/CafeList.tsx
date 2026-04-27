@@ -2,12 +2,17 @@
 
 import { useState } from 'react';
 import { Cafe } from '@/types/cafe';
+import { StarbucksStore } from '@/types/starbucks';
 
 interface CafeListProps {
   cafes: Cafe[];
+  starbucksData?: StarbucksStore[];
+  showStarbucks?: boolean;
   onEdit: (cafe: Cafe) => void;
   onDelete: (id: string) => void;
   onSelect: (cafe: Cafe) => void;
+  onToggleStarbucks?: (show: boolean) => void;
+  onStarbucksSelect?: (store: StarbucksStore) => void;
 }
 
 function StarRating({ value, max = 5 }: { value: number; max?: number }) {
@@ -18,7 +23,16 @@ function StarRating({ value, max = 5 }: { value: number; max?: number }) {
   );
 }
 
-export default function CafeList({ cafes, onEdit, onDelete, onSelect }: CafeListProps) {
+export default function CafeList({
+  cafes,
+  starbucksData = [],
+  showStarbucks = false,
+  onEdit,
+  onDelete,
+  onSelect,
+  onToggleStarbucks,
+  onStarbucksSelect,
+}: CafeListProps) {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'wifi' | 'quiet'>('name');
 
@@ -33,7 +47,13 @@ export default function CafeList({ cafes, onEdit, onDelete, onSelect }: CafeList
       return a.name.localeCompare(b.name);
     });
 
-  if (cafes.length === 0) {
+  const filteredStarbucks = starbucksData
+    .filter(s =>
+      s.name.toLowerCase().includes(search.toLowerCase()) ||
+      s.address.toLowerCase().includes(search.toLowerCase())
+    );
+
+  if (cafes.length === 0 && starbucksData.length === 0) {
     return (
       <div className="text-center py-12 text-gray-400">
         <div className="text-4xl mb-3">☕</div>
@@ -63,6 +83,56 @@ export default function CafeList({ cafes, onEdit, onDelete, onSelect }: CafeList
         </select>
       </div>
 
+      {/* Starbucks toggle */}
+      {starbucksData.length > 0 && (
+        <button
+          onClick={() => onToggleStarbucks?.(!showStarbucks)}
+          className={`w-full flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+            showStarbucks
+              ? 'bg-green-600 text-white hover:bg-green-700'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+          }`}
+        >
+          <span>★</span>
+          <span>{showStarbucks ? 'Hide' : 'Show'} Starbucks ({starbucksData.length})</span>
+        </button>
+      )}
+
+      {/* Starbucks list */}
+      {showStarbucks && filteredStarbucks.length > 0 && (
+        <>
+          <div className="text-xs font-medium text-green-600 dark:text-green-400 uppercase tracking-wide px-1">
+            ★ Starbucks ({filteredStarbucks.length})
+          </div>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto">
+            {filteredStarbucks.map(store => (
+              <div
+                key={store.id}
+                className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3 hover:border-green-400 dark:hover:border-green-500 transition-colors cursor-pointer"
+                onClick={() => onStarbucksSelect?.(store)}
+              >
+                <div className="flex items-start gap-1.5">
+                  <span className="text-green-600 font-bold text-sm shrink-0">★</span>
+                  <div>
+                    <h3 className="font-medium text-sm text-green-700 dark:text-green-300">{store.name}</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">{store.address}</p>
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {store.features.slice(0, 3).map(f => (
+                        <span key={f} className="text-[10px] bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-300 px-1.5 py-0.5 rounded">{f}</span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Regular cafes */}
+      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide px-1">
+        ☕ Cafes ({filtered.length})
+      </div>
       <div className="space-y-2 max-h-[400px] overflow-y-auto">
         {filtered.map(cafe => (
           <div
