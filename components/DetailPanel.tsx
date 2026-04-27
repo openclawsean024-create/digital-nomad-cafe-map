@@ -2,6 +2,7 @@
 
 import { Cafe } from '@/types/cafe';
 import { StarbucksStore } from '@/types/starbucks';
+import ShareButton from './ShareButton';
 
 interface DetailPanelProps {
   cafe: Cafe | null;
@@ -146,12 +147,17 @@ export default function DetailPanel({ cafe, starbucksStore, onClose }: DetailPan
         📍 {cafe.lat.toFixed(4)}, {cafe.lng.toFixed(4)}
       </div>
 
-      {/* Notes */}
+      {/* Notes and Share */}
       {cafe.notes && (
         <div className="border-t border-gray-100 dark:border-gray-700 pt-3">
           <p className="text-xs text-gray-600 dark:text-gray-300 italic leading-relaxed">"{cafe.notes}"</p>
         </div>
       )}
+
+      {/* Share Button */}
+      <div className="border-t border-gray-100 dark:border-gray-700 pt-2 mt-2">
+        <ShareButton cafeId={cafe.id} cafeName={cafe.name} />
+      </div>
     </div>
   );
 }

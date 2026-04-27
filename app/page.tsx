@@ -15,6 +15,23 @@ import StarbucksLegend from '@/components/StarbucksLegend';
 const CafeMap = dynamic(() => import('@/components/CafeMap'), { ssr: false });
 const WifiChart = dynamic(() => import('@/components/WifiChart'), { ssr: false });
 
+// Schema.org JSON-LD
+const schemaData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'Digital Nomad Cafe Map',
+  description: '探索全球適合遠距工作的咖啡廳',
+  url: 'https://digital-nomad-cafe-map.vercel.app',
+  applicationCategory: 'TravelApplication',
+  operatingSystem: 'Web Browser',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'TWD',
+    description: '免費版基本功能',
+  },
+};
+
 type View = 'list' | 'add' | 'edit';
 
 export default function Home() {
@@ -28,6 +45,19 @@ export default function Home() {
   const [showStarbucks, setShowStarbucks] = useState(false);
 
   // Initialize dark mode from localStorage and system preference
+  // Handle URL param ?cafe=<id> on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cafeId = params.get('cafe');
+    if (cafeId && cafes.length > 0) {
+      const found = cafes.find(c => c.id === cafeId);
+      if (found) {
+        setSelectedCafe(found);
+        setMapCenter([found.lat, found.lng]);
+      }
+    }
+  }, [cafes]);
+
   useEffect(() => {
     const stored = localStorage.getItem('nomad-cafe-dark');
     if (stored !== null) {
@@ -104,6 +134,11 @@ export default function Home() {
   };
 
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
       <header className="bg-blue-600 text-white shadow-md">
@@ -258,5 +293,6 @@ export default function Home() {
         </div>
       </footer>
     </div>
+    </>
   );
 }
