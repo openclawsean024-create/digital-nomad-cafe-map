@@ -171,6 +171,42 @@ export default function CafeForm({ cafe, onSubmit, onCancel }: CafeFormProps) {
         </div>
       </div>
 
+      {/* F-003b v2 擴充：5/9 維評分 */}
+      <div className="grid grid-cols-2 gap-4 border-t pt-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            ⏰ Time Limit
+          </label>
+          <select
+            value={(data as any).timeLimit ?? 'UNLIMITED'}
+            onChange={e => setData(d => ({ ...d, timeLimit: e.target.value } as any))}
+            className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="UNLIMITED">不限時（推薦）</option>
+            <option value="THREE_HOURS">3 小時</option>
+            <option value="TWO_HOURS">2 小時</option>
+            <option value="ONE_HOUR">1 小時</option>
+          </select>
+          <p className="text-xs text-gray-500 mt-0.5">可停留時間</p>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700">
+            🪑 Seating: <span className="text-purple-600">{'★'.repeat((data as any).seating ?? 3)}{'☆'.repeat(5 - ((data as any).seating ?? 3))}</span>
+          </label>
+          <input
+            type="range"
+            min="1"
+            max="5"
+            value={(data as any).seating ?? 3}
+            onChange={e => setData(d => ({ ...d, seating: parseInt(e.target.value) } as any))}
+            className="mt-1 w-full accent-purple-600"
+          />
+          <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+            <span>Uncomfortable</span><span>Very spacious</span>
+          </div>
+        </div>
+      </div>
+
       <div>
         <label className="block text-sm font-medium text-gray-700">Notes</label>
         <textarea
