@@ -3,11 +3,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { Cafe, CafeInput } from '@/types/cafe';
-import { getCafes, addCafe, updateCafe, deleteCafe } from '@/lib/data';
+import { loadCafes, addCafeToDb, updateCafeInDb, deleteCafeFromDb } from '@/lib/data-v2';
 import CafeList from '@/components/CafeList';
 import CafeForm from '@/components/CafeForm';
 import DetailPanel from '@/components/DetailPanel';
 import AddStarbucks from '@/components/AddStarbucks';
+import AuthButton from '@/components/auth/AuthButton';
+import MigrateButton from '@/components/MigrateButton';
 
 // Dynamically import map and chart to avoid SSR issues with Leaflet/recharts
 const CafeMap = dynamic(() => import('@/components/CafeMap'), { ssr: false });
@@ -39,6 +41,7 @@ export default function Home() {
   const [editingCafe, setEditingCafe] = useState<Cafe | null>(null);
   const [mapCenter, setMapCenter] = useState<[number, number]>([20, 0]);
   const [darkMode, setDarkMode] = useState(false);
+  const [dataSource, setDataSource] = useState<'db' | 'local'>('db');
 
   // Initialize dark mode from localStorage and system preference
   useEffect(() => {
@@ -74,42 +77,54 @@ export default function Home() {
     }
   }, [cafes]);
 
-  const loadCafes = useCallback(() => {
-    const data = getCafes();
+  const loadCafesCallback = useCallback(async () => {
+    const data = await loadCafes();
     setCafes(data);
   }, []);
 
   useEffect(() => {
-    loadCafes();
-  }, [loadCafes]);
+    loadCafesCallback();
+  }, [loadCafesCallback]);
 
-  const handleAdd = (data: CafeInput) => {
-    const newCafe = addCafe(data);
-    setCafes(prev => [...prev, newCafe]);
-    setView('list');
-    setSelectedCafe(newCafe);
-    setMapCenter([newCafe.lat, newCafe.lng]);
-  };
-
-  const handleUpdate = (data: CafeInput) => {
-    if (!editingCafe) return;
-    const updated = updateCafe(editingCafe.id, data);
-    if (updated) {
-      setCafes(prev => prev.map(c => c.id === updated.id ? updated : c));
-      setSelectedCafe(updated);
-      setMapCenter([updated.lat, updated.lng]);
+  const handleAdd = async (data: CafeInput) => {
+    try {
+      const newCafe = await addCafeToDb(data);
+      setCafes(prev => [...prev, newCafe]);
+      setView('list');
+      setSelectedCafe(newCafe);
+      setMapCenter([newCafe.lat, newCafe.lng]);
+    } catch (e) {
+      alert(`新增失敗: ${(e as Error).message}`);
     }
-    setEditingCafe(null);
-    setView('list');
   };
 
-  const handleDelete = (id: string) => {
+  const handleUpdate = async (data: CafeInput) => {
+    if (!editingCafe) return;
+    try {
+      const updated = await updateCafeInDb(editingCafe.id, data);
+      if (updated) {
+        setCafes(prev => prev.map(c => c.id === updated.id ? updated : c));
+        setSelectedCafe(updated);
+        setMapCenter([updated.lat, updated.lng]);
+      }
+      setEditingCafe(null);
+      setView('list');
+    } catch (e) {
+      alert(`更新失敗: ${(e as Error).message}`);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
     if (!confirm('Delete this cafe?')) return;
-    deleteCafe(id);
-    setCafes(prev => prev.filter(c => c.id !== id));
-    if (selectedCafe?.id === id) setSelectedCafe(null);
-    setEditingCafe(null);
-    setView('list');
+    try {
+      await deleteCafeFromDb(id);
+      setCafes(prev => prev.filter(c => c.id !== id));
+      if (selectedCafe?.id === id) setSelectedCafe(null);
+      setEditingCafe(null);
+      setView('list');
+    } catch (e) {
+      alert(`刪除失敗: ${(e as Error).message}`);
+    }
   };
 
   const handleSelect = (cafe: Cafe) => {
@@ -153,6 +168,9 @@ export default function Home() {
               >
                 {darkMode ? '☀️' : '🌙'}
               </button>
+              <div className="hidden md:block">
+                <AuthButton />
+              </div>
               {view === 'list' && (
                 <button
                   onClick={() => setView('add')}
@@ -165,7 +183,11 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Main Content */}
+          <div className="max-w-7xl mx-auto px-4 py-2">
+            <MigrateButton />
+          </div>
+
+          {/* Main Content */}
         <main className="max-w-7xl mx-auto px-4 py-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Sidebar */}
