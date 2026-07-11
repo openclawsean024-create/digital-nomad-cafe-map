@@ -43,6 +43,26 @@ export async function POST(request: Request) {
     );
   }
 
+  // Sprint 3 Freemium gate：確認 plan = PRO / BUSINESS
+  // 避免 spam 評論消耗 DB（free user 只能瀏覽、收藏；評論需 Pro）
+  const { data: profile } = await supabase
+    .from('users')
+    .select('plan')
+    .eq('id', userData.user.id)
+    .single();
+
+  const plan = profile?.plan ?? 'FREE';
+  if (plan !== 'PRO' && plan !== 'BUSINESS') {
+    return NextResponse.json(
+      {
+        code: 'PAYMENT_REQUIRED',
+        message: '評論功能需 Pro 訂閱',
+        upgradeUrl: '/pricing',
+      },
+      { status: 402 }
+    );
+  }
+
   // AC-005: 唯一約束由 DB UNIQUE (user_id, cafe_id) 強制
   // 若重複，回 409 Conflict
   const { data, error } = await supabase

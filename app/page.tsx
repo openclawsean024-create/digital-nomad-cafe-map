@@ -291,8 +291,11 @@ export default function Home() {
 
         {/* Footer */}
         <footer className="border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mt-8">
-          <div className="max-w-7xl mx-auto px-4 py-4 text-center text-xs text-gray-400 dark:text-gray-500">
-            Built for digital nomads · Data stored locally in your browser
+          <div className="max-w-7xl mx-auto px-4 py-4 text-center text-xs text-gray-500 dark:text-gray-400">
+            <span>Built for digital nomads · </span>
+            <a href="/pricing" className="hover:underline text-blue-600 dark:text-blue-400">定價</a>
+            <span> · </span>
+            <a href="/account" className="hover:underline text-blue-600 dark:text-blue-400">帳號</a>
           </div>
         </footer>
       </div>

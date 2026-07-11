@@ -1,6 +1,7 @@
 'use client';
 
 import { Cafe } from '@/types/cafe';
+import FavoriteButton from './FavoriteButton';
 
 interface DetailPanelProps {
   cafe: Cafe | null;
@@ -63,13 +64,16 @@ export default function DetailPanel({ cafe, onClose, onShare }: DetailPanelProps
           <h3 className="font-semibold text-gray-900 dark:text-white text-base leading-tight">{cafe.name}</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-snug">{cafe.address}</p>
         </div>
-        <button
-          onClick={onClose}
-          className="ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-lg leading-none shrink-0"
-          aria-label="Close"
-        >
-          ×
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          <FavoriteButton cafeId={cafe.id} />
+          <button
+            onClick={onClose}
+            className="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-lg leading-none"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
       </div>
 
       {/* Ratings Grid */}
