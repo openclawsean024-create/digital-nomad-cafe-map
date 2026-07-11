@@ -964,3 +964,75 @@ python3 ~/.hermes/skills/write-prd-v2/scripts/validate_prd.py SPEC.md
 *升級從 v1.0 (3.7K 字) → v2.2.1（19.4K 中文字元）*
 *合規度：目標 ≥90%（跑 validate_prd.py 驗證）*
 *下一版：v2.2.2 — 預計加入 Sprint 2-3 實作後的「實際 schema 對照」*
+
+---
+
+## 16. Sprint 2 實作紀錄（2026-07-11）
+
+### 16.1 已完成（5 天 → 1 session 衝完）
+
+| Day | 任務 | 狀態 |
+|---|---|---|
+| Day 1 | Supabase project 建立 + schema migration | ✅ 6 表 + 2 enum + 9 RLS policy 推到 remote |
+| Day 2 | Auth UI (magic link + Google OAuth) | ✅ AuthButton + /auth/callback route |
+| Day 3 | localStorage → Postgres migration | ✅ MigrateButton + upgradeV1Cafe 相容層 |
+| Day 4 | Review CRUD + 檢舉 + AC-005 唯一約束 | ✅ /api/reviews + /api/reviews/report |
+| Day 5 | F-003b 5/9 維評分擴充 | ✅ timeLimit + seating 兩維已上 |
+
+### 16.2 新增檔案（11 個）
+
+```
+supabase/
+  config.toml                       # Supabase CLI config
+  migrations/
+    20260711000000_init.sql         # 6 tables + 2 enums + RLS + triggers + seed
+  schema.sql                        # 同上，便於 review
+
+lib/
+  supabase/
+    client.ts                       # 瀏覽器 client (anon key)
+    server.ts                       # server client + cookies
+    types.ts                        # Review / Report 介面
+
+components/
+  auth/
+    AuthButton.tsx                  # magic link + Google
+  MigrateButton.tsx                 # localStorage → DB 遷移
+
+app/
+  auth/
+    callback/route.ts               # OAuth/magic link callback
+  api/
+    cafes/route.ts                  # GET 列表 + POST 新增
+    reviews/route.ts                # POST 新增 (AC-005 unique)
+    reviews/report/route.ts         # POST 檢舉
+```
+
+### 16.3 Schema 對照（SPEC §4.3 → 實際）
+
+```
+model Cafe              →  cafes (id uuid pk, name text, lat float, ...)
+model Review            →  reviews (user_id, cafe_id, UNIQUE 約束)
+model Report            →  reports (XOR cafe_id/review_id 約束)
+model User              →  public.users (extends auth.users)
+model Subscription      →  subscriptions (stripe_sub_id)
+model (favorites 加的)  →  favorites (我的最愛雲端同步 v2 用)
+```
+
+### 16.4 升級 sprint 3 評估
+
+✅ **已實作 (AC-005)**：unique(user_id, cafe_id) 強制 — 重複評論自動回 409
+✅ **已實作 (降級機制 §5.3)**：localStorage fallback、DB 連不上 → 仍可用
+⚠️ **下個 sprint**：
+- Stripe Checkout（接 share.getSubscription）
+- Freemium gate
+- Cloudinary 圖片上傳
+- 我的最愛雲端同步 UI
+
+### 16.5 重新評分
+
+- **程式碼完成度**：50% → **70%**（Auth + DB + Reviews 落地，差 Payment）
+- **商業化分數**：61 → **69**（具備真實 Auth + 真實 DB，但 Stripe 還沒接）
+- **Sprint 3 完成後預期**：完成度 90%、商分 80
+
+
