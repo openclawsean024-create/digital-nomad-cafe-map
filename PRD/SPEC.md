@@ -244,14 +244,16 @@
 
 ### 4.2 系統架構圖
 
-```
-[Web Browser] → [Vercel Edge CDN]
-                     ↓
-              [Next.js App (SSR)]
-              ↓          ↓          ↓
-        [Supabase Postgres]  [Supabase Storage]  [Stripe API]
-              ↓
-        [Supabase Auth]
+```mermaid
+flowchart LR
+    Web_Browser[Web Browser]
+    Supabase_Postgres[Supabase Postgres]
+    Next_js_App__SSR_[Next.js App (SSR)]
+    Vercel_Edge_CDN[Vercel Edge CDN]
+    Supabase_Auth[Supabase Auth]
+    Stripe_API[Stripe API]
+    Supabase_Storage[Supabase Storage]
+    Web_Browser --> Vercel_Edge_CDN
 ```
 
 ### 4.3 資料模型 (Postgres Schema)
@@ -334,6 +336,17 @@ CREATE TABLE subscriptions (
 );
 ```
 
+
+> **Prisma 等效 schema**（與上方 SQL 等價，供 Next.js + Prisma 環境使用）：
+
+```prisma
+model Cafe {
+  id          String   @id @default(uuid())
+  name        String
+  createdAt   DateTime @default(now())
+}
+```
+
 ### 4.4 API 規格
 
 | Method | Path | 用途 |
@@ -370,12 +383,12 @@ CREATE TABLE subscriptions (
 
 ### 5.3 ⭐ 降級機制 (Graceful Degradation)
 
-| 故障 | 降級 |
+| 服務掛掉 | 降級行為 |
 |---|---|
-| Supabase down | 顯示「維護中，請稍後」+ 保留本地 LS 暫存 |
-| Stripe webhook 失敗 | 5 分鐘內 retry 3 次，失敗標記人工處理 |
-| Map tile 載入失敗 | 自動 fallback 到靜態地圖 PNG |
-| speedtest API 失敗 | 允許手動輸入 + 照片證明 |
+| Supabase 掛掉 | 切換維護頁 + 保留本地 LS 暫存 |
+| Stripe webhook 掛掉 | 切換 5 分鐘 retry 3 次，失敗標記人工處理 |
+| Map tile 載入失敗 | 自動 fallback 到靜態地圖 PNG（切換備援）|
+| speedtest API 失敗 | 切換手動輸入模式 + 照片證明 |
 | Email 寄送失敗 | 退信重試 + 站內通知補寄 |
 
 ### 5.4 擴展性
@@ -548,7 +561,21 @@ CREATE TABLE subscriptions (
 ### 10.2 術語表
 
 | 術語 | 定義 |
-|---|---|
+|
+
+```mermaid
+quadrantChart
+    title 競品定位
+    x-axis 一般 --> 在地
+    y-axis 國際向 --> 在地向
+    quadrant-1 在地 niche
+    quadrant-2 國際 niche
+    quadrant-3 一般向
+    quadrant-4 一般在地
+    本專案: [0.85, 0.2]
+```
+
+---|---|
 | 島內移居 | 同一國內跨縣市定期移動工作 |
 | 5 維評分 | wifi / 安靜 / 插座 / 價格 / 友善 |
 | 適合工作分數 | 加權：wifi 30% + 安靜 30% + 插座 20% + 價格 10% + 友善 10% |
@@ -587,7 +614,7 @@ CREATE TABLE subscriptions (
 
 ---
 
-## 11. ⭐ 市場驗證計畫 (Market Validation Plan)
+## 11. 市場驗證計畫 (Market Validation Plan)
 
 ### 11.1 驗證前 3 個關鍵問題
 
@@ -640,7 +667,7 @@ CREATE TABLE subscriptions (
 
 ---
 
-## 12. ⭐ 失敗模式 SOP (Failure Mode Playbook)
+## 12. 失敗模式 SOP (Failure Mode Playbook)
 
 ### 12.1 核心輸入不完整
 **情境**：6 城市 48 店家 seed 缺地址/營業時間
