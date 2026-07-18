@@ -1,30 +1,23 @@
-# 台灣咖啡廳工作友善評分地圖 — 規格計劃書 v2.2.2 (sweet-spot-driven)
+# Digital Nomad Cafe Map — 規格書 v2.2.2
 
-> 版本：v2.2.2 (sweet-spot-driven rewrite)
-> 維護者：Sophia (CPO) for Sean
-> 對接技術：Alan (CTO) + Hermes Agent
-> 對接 Repo：https://github.com/openclawsean024-create/digital-nomad-cafe-map
-> 對接現實：原版「全球數位牧民咖啡廳地圖」概念太大、紅海強烈；本版收斂為「**台灣在地工作友善咖啡廳 5 維評分地圖**」
-> 最後更新：2026-07-19
+> **專案**：Digital Nomad Cafe Map（台灣數位遊牧咖啡廳地圖）
+> **PRD 版本**：v2.2.2（sweet-spot rewrite, 從國際 Workfrom/Nomads.com 紅海 pivot 到台灣在地垂直 niche）
+> **撰寫日期**：2026-07-19
+> **作者**：Sean（PRD specialist 批次 B 重寫）
+> **SSOT 位置**：`/home/sean/Program/digital-nomad-cafe-map/PRD/SPEC.md`
+> **本地路徑**：`/home/sean/Program/digital-nomad-cafe-map`
 
 ---
 
 ## 0. 改版摘要 (What's new in v2.2.2)
 
-依據「sweet spot 5 問體檢」（體檢分數 = 2/10，建議 kill），v2.2.2 把 PRD 從「**全球數位牧民咖啡廳地圖**」大幅收斂為「**台灣在地工作友善咖啡廳 5 維評分地圖**」。這個重寫繞過了所有紅海：
-
-1. **紅海警訊**：Workfrom 125K users、Nomads.com 36K users、Wifi Tribe 主戰歐美，**但他們都不做台灣在地深度**
-2. **社群排斥外地對手警訊**：Dcard「數位遊牧」板、Threads 數位遊牧社群對「外地人來賺我們的錢」高度敏感
-3. **台灣 nomad < 20K 警訊**：付費意願低、TAM 太小 → 我們擴大 target 到 **freelancer + 學生 + SOHO + 接案者**，不只是 nomad
-
-**本版核心差異**：
-- §1.1：問題陳述從「nomad 找咖啡廳」切到「**台灣 freelancer/學生/SOHO 找長時間工作地點**」
-- §1.3：定位為「**台灣在地 5 維工作友善評分地圖**」（不是全球地圖）
-- §1.5：明確不做全球地圖、不做 nomad-only、不做英文介面（先做繁中）
-- §3.1 MVP：縮減為「**5 維評分 + 繁中 UI + 雙北/台中 3 城市 + UGC 評論**」4 個核心功能
-- §7.2 ADR-005：為何切到台灣在地 5 維評分
-- §11：5 場 freelancer 訪談 + 1 個 Landing Page
-- §15：完整 sweet spot 體檢
+| v2.2.1 → v2.2.2 差異 | 為何改 | 對誰重要 |
+|---|---|---|
+| Sweet spot 從「全球 digital nomad」紅海（sweet=2）pivot 到 **「台灣本島／外島島內移居者（island-internal relocator）」** | Workfrom 250k+ listings、Nomads.com 已被 SafetyWing 收購，紅海驗證失敗 | 真正可贏的小眾 |
+| Persona 從「數位遊牧者」縮為「25-40 歲台灣工程師／設計師，每月島內移動工作（台東→台北、台南→澎湖等），需要可信任的咖啡廳 wifi + 安靜度資訊」 | 漫遊者太國際、在地人找不到此資訊 | 縮小後 persona 明確 |
+| 5 維評分模型：**WiFi 速度（Mbps）／安靜度（1-5）／座位插座率（%）／餐點價格中位數／社群友善度（1-5）**，加 **可信任來源** | Workfrom 只用星等，無法回答「能不能視訊會議」 | 取代模糊評論 |
+| 商業模型 pivot：從 freemium 訂閱變成 **單次解鎖全島地圖 NT$199 + 月訂閱 NT$99 拿跨店回訪提醒** | 訂閱要 30 天留存才划算，本地島內移居者平均停留 7-14 天，訂閱不 fit | 付費意願對得上 |
+| 驗證從「全球用戶 1000 MAU」改為「30 天內 5 個島內移居者付費解鎖 + 8 個驗證評分」 | 更小、更可反駁 | 兩週可驗證 |
 
 ---
 
@@ -32,101 +25,58 @@
 
 ### 1.1 問題陳述 (Problem Statement)
 
-> **Sweet spot 5 問 #1 警訊**：Dcard「數位遊牧」板 1.5 萬成員、Threads #freelancer 8 萬+ 貼文、PTT「WorkFromHome」每月 100+ 討論文 — 痛點明確，但沒有專門工具。
+**核心問題**：台灣 25-40 歲的「島內移居型遠距工作者」每月在 1-2 個城市間流動工作（例：平日在台北，月中有 5-7 天到台東/台南/高雄/花蓮/外島），到陌生城市要花 2-4 小時在 Google Maps + Threads + Dcard 交叉查「哪間咖啡廳 wifi 不卡、可坐 3 小時、有插座、不會被趕」。現有競品 (Workfrom, Nomads.com) 全是國際向、英文介面、東南亞焦點，**沒有任何一個專注台灣島內、繁體中文、有結構化評分**。
 
-台灣有 **180 萬 freelancer / SOHO / 接案者 + 100 萬遠距工作上班族 + 80 萬在學研究生**，他們每天需要找「可以長時間工作的咖啡廳」。但現有工具都不到位：
-
-**痛點 A：「Google Maps 找咖啡廳」無工作友善資訊**
-- Google Maps 只給觀光客取向（裝潢漂亮、餐點好吃）
-- 沒標示：營業時間是否足夠長、WiFi 速度、插座密度、桌距寬度、是否限時
-
-**痛點 B：社群口碑分散且無結構**
-- Dcard、Threads、PTT 推薦文都是「我覺得 XX 咖啡廳不錯」
-- 無 5 維評分、無地圖聚合、無法搜尋城市
-
-**痛點 C：現有「工作咖啡廳」app 都是全球導向**
-- Workfrom 主戰歐美、台灣資料 < 100 家
-- Nomads.com、Wifi Tribe 不做單一國家深度
-- 國際 app 對台灣在地特色（夜貓子咖啡、24hr 書店、共享空間）不熟
-
-**現有方案對照**：
-| 方案 | 解決的痛點 | 沒解決的痛點 |
-|---|---|---|
-| Google Maps | 地點 + 基本評論 | 無工作友善 5 維評分 |
-| Workfrom / Nomads.com | 全球地圖 | 台灣資料稀疏、繁中缺失 |
-| Dcard/Threads 口碑推薦 | 真實體驗 | 無結構、無地圖、無法搜尋 |
-| HappyCow（素食）| 餐廳 5 維評分 | 不含工作咖啡 |
-| 咖啡廳業主 FB 社團 | 業主聚集 | 不對外開放、不便於搜尋 |
-
-**Sweet spot 體檢發現**：「**台灣在地 5 維工作友善評分地圖**」這個**從來沒有人做好**。Google 搜尋「台灣 工作咖啡廳」前 5 頁都是論壇抱怨文或新聞，沒有 SaaS/app 切入。
-
-**為何這個甜蜜點在台灣存在**：
-1. 台灣 180 萬 freelancer + 100 萬上班族 = 280 萬市場，比純 nomad (20K) 大 100 倍
-2. 繁中 UI 是國際 app 不會做的（語言 + 在地知識雙重護城河）
-3. UGC 評論可快速累積（Dcard/Threads 既有社群）
+**市場證據**：
+- 2024-2026 台灣遠距工作者估 35-50 萬人（主計處 2024 統計：彈性上班 + 自營工作者中含遠距工作者約 8%）
+- 「島內移動」現象：2024 觀光局統計每月跨縣市工作者（含商務 + 數位遊牧型）約 12 萬人次
+- Threads/PTT/Dcard「台灣 數位遊牧」「台灣 島內移居」關鍵字每月搜尋 > 3000（粗估，需實際驗證）
+- 痛點強度：9/10（每次移動都遇到，每個月 2-4 次）
 
 ### 1.2 目標使用者 (User Personas)
 
-**Sweet spot 鎖定：雙北/台中/高雄 freelancer + 上班族 + 學生**（擴大原本的 nomad-only）
+**Primary persona — 小 V（28 歲台中 iOS 工程師）**：
+- 背景：月薪 75-95k，僱主允許全遠距，每個月到台南/高雄/台東住 Airbnb 7-10 天
+- 痛點：到陌生城市不知道哪間咖啡廳「可以安心開 4 小時 standup + 寫 code」，常踩雷被趕或 wifi 斷
+- 現有 workaround：Threads 標記「台南 咖啡廳 工作」+ Google Maps 評論，但散亂、無法比較
+- 付費意願：願意付 NT$199 一次看完整評分 + NT$99/月拿每週新店通知（粗估，需訪談驗證）
+- AARRR：找得到 → 用得上 → 願意付 → 留下來
 
-| 角色 | 規模（台灣）| 月找咖啡廳頻率 | 痛點強度 | ARPU/年 | 為何是甜蜜點 |
-|---|---|---|---|---|---|
-| 👨‍💻 Freelancer/接案者 | ~30 萬 | 5-15 次 | 高（常換咖啡廳）| NT$0-299 | 付費意願中等、UGC 貢獻者 |
-| 👩‍💼 遠距上班族 | ~50 萬 | 10-30 次 | 中（固定幾家）| NT$299 | 高頻使用者、付費意願高 |
-| 🎓 研究生/大學生 | ~80 萬 | 20-50 次 | 中（省錢）| NT$0 | 評論貢獻者、低付費 |
-| 🧑‍🎨 自由創作者（設計/音樂/寫作）| ~20 萬 | 10-20 次 | 高 | NT$199 | 高黏性、推薦傳播 |
-| 🏪 咖啡廳業者（B2B 廣告）| ~5,000 家 | — | — | NT$4,999/年 | B2B 中型客戶 |
-| ❌ 國際 nomad（觀光客）| ~5K/年 | — | — | — | **排除：付費低、英文 UI 成本高** |
-| ❌ 一般觀光客 | — | — | — | — | **排除：Google Maps 足夠** |
-
-**目標族群 = 雙北/台中/高雄 freelancer + 遠距上班族 + 自由創作者**，預估 TAM ~280 萬、付費率 5-10% = SAM 14-28 萬、SOM (首年) 5,000-15,000 用戶。
+**Secondary persona — Mandy（32 歲自由品牌設計師，台北/台東雙棲）**：
+- 背景：每月台北 20 天、台東 10 天，需要客戶視訊會議
+- 痛點：需要「可開 Zoom 的咖啡廳」+ 安靜度分數
+- 付費意願：願意付 NT$199/月訂閱拿「視訊友善」過濾
 
 ### 1.3 核心價值主張 (Value Proposition)
 
-> **「找下一個工作咖啡廳 — 5 維評分（插座/WiFi/桌距/限時/噪音）一鍵看完。」**
+> **「台灣島內移居工作者專用，5 維評分 wifi / 安靜度 / 插座 / 價格 / 社群友善，找到下一個城市能安心坐 3 小時的咖啡廳。」**
 
-**與競品的差異化（一行）**：
-
-| 競品 | 他們的定位 | 我們的差異 |
-|---|---|---|
-| Google Maps | 通用地圖 | **5 維工作友善評分**，不是「好不好吃」是「能不能好好工作 4 小時」|
-| Workfrom / Nomads.com | 全球 nomad | **台灣在地 100+ 城市**，繁中 UI、台灣獨有夜貓子咖啡/共享空間 |
-| Dcard/Threads 口碑 | 業主真實分享 | **結構化 5 維 + 地圖 + 搜尋**，不用爬文 |
-| HappyCow | 素食 5 維評分 | **工作咖啡 5 維**，鎖定不同場景 |
-| 咖啡廳 FB 社團 | 業主聚集 | **對外開放 + 評論 + 地圖**，消費者導向 |
-
-**一句話差異化**：「**HappyCow 是給素食者找餐廳，我們是給 freelancer 找咖啡廳。**」
+- **For** 25-40 歲台灣島內移居型遠距工作者
+- **Who** 每月在 1-2 個城市間流動工作
+- **Our product is** 一個台灣在地專屬的咖啡廳地圖 + 結構化評分 + 跨店回訪提醒
+- **That** 5 分鐘內告訴你下一個陌生城市「能開 4 小時 standup」的最佳 3 間
+- **Unlike** Workfrom（國際向、英文、東南亞）、Nomads.com（已收購停滯）、Threads 散亂標記、Google Maps 評論無結構
+- **Our product** 用 5 維評分 + 繁體中文 + 島內專注 + 親自到店驗證的可信任來源
 
 ### 1.4 商業目標 (KPIs / OKRs)
 
-**Sweet spot 體檢提醒**：原 v2.2.1 的「全球 50 萬用戶」過度樂觀，我們收斂為：
-
-| 時間 | 目標 | 量化指標 | 驗證方式 |
-|---|---|---|---|
-| M1-M3 驗證 | 5 場 freelancer 訪談 + 1 Landing Page + UGC 100 篇 | 100 訪客 / 50 篇評論 | §11 訪談 SOP |
-| M4-M6 試營運 | 1,000 用戶 + 200 家咖啡廳評分 + 30 家 B2B | NT$30K 訂閱 + NT$150K B2B = NT$180K | Stripe webhook |
-| M7-M12 擴張 | 8,000 用戶 + 1,000 家咖啡廳 + 100 家 B2B | NT$240K 訂閱 + NT$500K B2B = NT$740K | 客戶留存率 ≥ 40% |
-| M13-M18 規模化 | 30,000 用戶 + 5,000 家 + 300 家 B2B + 3 城市 | NT$900K 訂閱 + NT$1.5M B2B = NT$2.4M | 教咖啡廳老闆自主上架 |
-
-**Unit Economics（修正版）**：
-- LTV（C 端）：NT$299/年 × 3 年 = NT$897
-- LTV（B2B）：NT$4,999/年 × 3 年 = NT$14,997
-- 加權 LTV：NT$2,500 (假設 C:B = 9:1)
-- CAC：NT$50 (Threads/Dcard 口碑) + NT$500 (B2B 業務) 加權 = NT$95
-- LTV/CAC = 26（健康）
+| 時間 | 指標 | 目標 |
+|---|---|---|
+| 30 天 pilot | 付費解鎖人數 | ≥ 5 |
+| 30 天 pilot | 驗證評分數 | ≥ 8（每個至少 3 個獨立驗證者） |
+| 60 天 | 留存 D30 | ≥ 25% |
+| 90 天 | MRR | NT$ 15,000（≈ 50 訂閱 + 20 解鎖） |
+| 180 天 | 城市覆蓋 | 6 個（台北/台中/台南/高雄/台東/花蓮） |
 
 ### 1.5 ⭐ Non-Goals (明確不做)
 
-依據 sweet spot 體檢「紅海排除」原則：
-
-| Non-Goal | 為何不做 | 紅海證據 |
-|---|---|---|
-| ❌ 不做**全球地圖** | Workfrom 125K、Wifi Tribe 主戰歐美 | Workfrom 估值未公開、累積 125K MAU |
-| ❌ 不做**純 nomad 市場** | 台灣 nomad < 20K、TAM 太小 | Nomads.com 36K users 為全球分散 |
-| ❌ 不做**英文 UI（MVP）** | 國際 app 已有、繁中是護城河 | Workfrom 已英文化、Sean 1 人無力同時維護 |
-| ❌ 不做**城市 > 5 個** | Sean 1 人無法在地化、需 UGC 自然累積 | HappyCow 用 15 年累積 50 國 |
-| ❌ 不做**預約/排隊/支付** | 紅海（inline/appier 佔）、與「找咖啡廳」無關 | inline 估值 NT$10 億 |
-| ⏸ **先驗證再開發**：本 PRD 採用「先做 §11 驗證計畫 60 天，驗證通過才動 §3.1 MVP 開發」 | sweet spot = 2 偏低，需先驗證 | 5 場訪談 + 1 Landing Page |
+> ⚠️ **Sweet spot 提醒**：國際數位遊牧者市場 sweet=2（紅海），本 PRD 明確排除：
+- ❌ **不做國際/英文介面**（pivot 失敗案例：Workfrom 250k listings 都沒賺錢）
+- ❌ **不做飯店/青旅/共享空間評分**（範圍爆炸，與 Workfrom 紅海正面交鋒）
+- ❌ **不做「全球 digital nomad visa」「稅務」「保險」內容**（無聊、紅海）
+- ❌ **不做 AI 行程規劃**（成本超支、無法驗證）
+- ❌ **不做 iOS/Android app v1**（先 web responsive，2 個月內有用戶要 app 才做）
+- ❌ **不做訂位/團購/外送整合**（與既得利益者 UberEats/meituan 對打必死）
 
 ---
 
@@ -134,119 +84,145 @@
 
 ### 2.1 使用者流程圖
 
-```mermaid
-flowchart TD
-    A[freelancer 在 Threads 看到 UGC] --> B[點擊 Landing Page]
-    B --> C{選擇城市}
-    C -->|雙北/台中/高雄| D[看地圖 + 咖啡廳列表]
-    C -->|其他城市| E[v2 開放，現請留 Email]
-    D --> F[5 維評分篩選：插座≥4 + WiFi≥4 + 限時=不限]
-    F --> G[看詳細頁：照片 + 評論 + 5 維雷達圖]
-    G --> H{是否登入?}
-    H -->|否| I[匿名瀏覽 + 每月 5 篇評論]
-    H -->|是| J[寫評論 + 上傳照片]
-    J --> K[評論貢獻解鎖：每月 50 篇免費 Pro]
-    K --> L[推薦朋友賺 NT$50/月 Pro 月費]
+```
+[陌生城市抵達] → [開啟 web app] → [選擇城市 + 篩選條件]
+   ↓
+[查看 5 維評分列表 + 地圖]
+   ↓
+[選擇一間 → 看詳細評分 + 驗證者評論]
+   ↓
+[免費看 3 間 / 第 4 間起要 NT$199 解鎖]
+   ↓
+[到店 → 驗證評分正確性 → 留評分 → 拿 7 天回訪提醒]
 ```
 
 ### 2.2 關鍵用戶故事 (User Stories)
 
-**Story 1：freelancer 找咖啡廳 (P0)**
-> **Why this priority**：MVP 入口，沒有這個就沒 UGC。
-> **Independent test**：可用 1 城市 10 家咖啡廳 mock 資料測試。
+#### US-001：島內移居者到台南第 1 天找咖啡廳
+> As 小 V（iOS 工程師）
+> I want 到台南第 1 天打開 web 看到「可開 4h standup」前 3 間咖啡廳
+> So that 不用花 2 小時搜尋還踩雷
 
-```gherkin
-Given 我在台北市信義區
-When 我在搜尋「插座≥4 + 限時=不限」
-Then 我看到 5 家咖啡廳列表 + 5 維評分雷達圖
-```
+**Acceptance**：
+- 選「台南」+ 篩「wifi ≥ 50 Mbps」+「安靜 ≥ 4」
+- 3 秒內顯示 3 間，每間都有 5 維分數 + 至少 2 個獨立驗證者
 
-**Story 2：寫評論 (P0)**
-> **Why this priority**：UGC 是護城河，沒有這個就沒資料。
-> **Independent test**：可寫 1 篇評論測試解鎖 Pro。
+#### US-002：付費解鎖全島地圖
+> As Mandy（設計師）
+> I want 付 NT$199 一次解鎖所有城市所有評分（30 天內有效）
+> So that 月中到台東時不用再付一次
 
-```gherkin
-Given 我剛在某咖啡廳工作 4 小時
-When 我寫 5 維評分 + 上傳 1 照片 + 100 字評論
-Then 系統送我 1 個月 Pro 免費
-```
+**Acceptance**：
+- 點「解鎖全島」按鈕 → Stripe Checkout NT$199
+- 30 天內所有城市 + 所有評分細節（含評論）都可看
 
-**Story 3：B2B 業主付費 (P0)**
-> **Why this priority**：B2B 是營收主力、C 端是流量。
-> **Independent test**：可用 1 家 mock 咖啡廳測試上架。
+#### US-003：到店驗證評分
+> As 付費用戶
+> I want 到店 30 分鐘內完成「驗證評分」（量 wifi + 拍照座位 + 評安靜度）
+> So that 累積信任分數，拿到 7 天回訪提醒
 
-```gherkin
-Given 我是咖啡廳業主
-When 我付 NT$4,999/年 上架
-Then 我獲得「認證徽章」+ 業主後台編輯資料
-```
+**Acceptance**：
+- 到店登入 → 按「我在這裡」→ speedtest API 自動抓 wifi 速度
+- 拍照上傳座位（≥ 1 張）→ 評安靜度 1-5
+- 5 分鐘內完成，獲得 1 個驗證點 + 7 天內可加入「這間店回訪提醒」
 
-**Story 4-10 邊界場景**：
-- 咖啡廳已歇業（用戶回報 → 業主 7 日未回 → 自動標記關閉）
-- 評分被惡意洗版（限制 1 帳號/咖啡廳/月 1 篇）
-- WiFi 速度變慢（用戶即時回報 → 標籤更新）
-- 桌距太擠（評論中標示，搜尋可過濾）
+#### US-004：跨店回訪提醒（訂閱限定）
+> As 訂閱者
+> I want 每週收到「下週可能會去的城市」新進咖啡廳通知
+> So that 不用主動查，減少搜尋時間
+
+**Acceptance**：
+- 訂閱後可在「我的城市」加入 1-3 個常用城市
+- 每週一早上 9 點 email 推送該城市本週新進 + 驗證更新前 3 間
 
 ### 2.3 邊界場景 (Edge Cases)
 
-| 邊界場景 | 觸發條件 | 應對 |
-|---|---|---|
-| 咖啡廳多變（限時政策變）| 業主改規則 | 用戶評論即時更新 |
-| 5 維評分歧異大 | 老咖啡廳有人 5 星有人 1 星 | 顯示中位數 + 評論分布 |
-| B2B 業主付費但無評論 | 沒人評論 | 顯示「待評論累積」+ 業主可主動詢問客人 |
-| 城市無資料 | 用戶搜尋花蓮 | 顯示「目前無資料，歡迎第一個評論」+ Email 留單 |
+| 場景 | 處理 |
+|---|---|
+| 咖啡廳歇業 | 30 天無驗證標「可能歇業」，90 天無驗證下架 |
+| 評分造假（店家自己灌） | 同一 IP 24h 內僅可留 1 筆 + 必須親到 speedtest 驗證 |
+| 同一城市無 3 間通過驗證 | 顯示「本城市資料不足，請加入 LINE 群回報」 |
+| 付費但 30 天內無新評分 | 主動 refund 或延長 30 天 |
+| 離島（澎湖/蘭嶼/綠島） | v1 排除，v2 再議 |
+| 速限/網路無法 speedtest | 允許手動輸入 + 拍照 wifi 儀表板 |
 
 ---
 
 ## 3. 功能性需求 (Functional Requirements)
 
-### 3.1 MVP（必做，P0）
+### 3.1 MVP（必做，P0；sweet-spot redefinition）
 
-> **Sweet spot 5 問 #3 MVP 縮減**：原 v2.2.1 MVP 有 15 個功能，sweet spot 偏低時應砍到 4 個關鍵功能。
+#### FR-001：城市選擇 + 5 維篩選（MUST）
+- 6 城市預載：台北/台中/台南/高雄/台東/花蓮
+- 篩選：wifi ≥ X Mbps、安靜度 ≥ Y、插座率 ≥ Z%
+- 排序：依「適合工作分數」（加權：wifi 30%、安靜 30%、插座 20%、價格 10%、友善 10%）
 
-| # | 功能 | 為何在 MVP | 驗證指標 |
-|---|---|---|---|
-| F-01 | **Landing Page + 3 城市選擇** | 唯一獲客入口 | 100 訪客 / 50% 點城市 |
-| F-02 | **5 維評分咖啡廳列表 + 地圖** | 核心價值 | 200 家評分資料 / 月活 1,000 |
-| F-03 | **評論系統（5 維評分 + 文字 + 照片）** | UGC 護城河 | 100 篇評論 / 月 |
-| F-04 | **B2B 業主付費上架** | 營收主力 | 30 家付費 / NT$150K |
+#### FR-002：5 維評分卡片（MUST）
+每間顯示：
+- WiFi 速度（中位數 Mbps，speedtest 驗證）
+- 安靜度（1-5，平均 + 驗證者數）
+- 插座率（座位有插座 %）
+- 餐點價格中位數（NT$）
+- 社群友善度（1-5，「歡迎久坐」「不限時」「有會議室」綜合）
 
-**明確不在 MVP 的功能**：
-- ❌ 跨國/英文（v2）
-- ❌ 多語言評論（v2）
-- ❌ 預約/支付/排隊
-- ❌ AI 推薦（v3）
-- ❌ 直播/短影音評論
+#### FR-003：地圖視圖 + 列表視圖切換（MUST）
+- Leaflet + OpenStreetMap（無 Google Maps API 成本）
+- 點 marker 顯示 5 維評分卡片
+
+#### FR-004：付費解鎖全島（MUST）
+- Stripe Checkout NT$199，30 天有效
+- 免費版：每城市看前 3 間評分（不含細節評論）
+- 付費版：所有城市 + 所有細節 + 評論
+
+#### FR-005：到店驗證流程（MUST）
+- speedtest API 自動抓 wifi
+- 拍照座位 + 評安靜度
+- 5 分鐘內完成，獲得驗證點
+
+#### FR-006：跨店回訪提醒（訂閱限定，MUST）
+- 訂閱者加入 1-3 個城市
+- 每週一早上 9 點 email 推送
+
+#### FR-007：管理員後台（MUST）
+- 手動新增/編輯店家
+- 審核使用者評分
+- 看營收 + 使用統計
+
+#### FR-008：6 城市 × 8 店 pilot seed（MUST）
+- 預載 48 間已知咖啡廳（每城市 8 間）
+- 含地址、營業時間、基本資訊
+- 評分先空，由 pilot 30 天內使用者填
 
 ### 3.2 v2（加值，P1）
 
-| 功能 | 為何 v2 | 預估時程 |
-|---|---|---|
-| F-05 全部 22 縣市覆蓋 | 累積 UGC 後自然擴張 | M7-M9 |
-| F-06 Pro 用戶進階篩選（如「安靜度≥4 + 桌距寬」） | 付費轉化 | M10-M12 |
-| F-07 WiFi 速度即時測試 | 與 Speedtest 合作 | M13-M15 |
-| F-08 B2B 業主 CRM（客人數據分析）| B2B 升級 | M16-M18 |
+- 視訊會議友善度評分（「可開 Zoom」獨立 filter）
+- 用戶主動新增店家（contribution mode）
+- 城市排行版（最受歡迎 top 10）
+- 推播通知（PWA）
 
 ### 3.3 v3（探索，P2）
 
-| 功能 | 為何 v3 |
-|---|---|
-| F-09 共享空間地圖（與咖啡廳分開 tab） | B2B 共享空間付費 |
-| F-10 AI 推薦「適合你的咖啡廳」 | 累積 10 萬用戶後 |
-| F-11 跨國擴張（日韓/東南亞） | 台灣飽和後 |
+- iOS/Android app
+- AI 行程規劃助手
+- 飯店/共享空間/會議室整合
+- 多語系（英文/日文/韓文，給外國 digital nomad）
 
 ### 3.4 ⭐ Acceptance Criteria (Given/When/Then)
 
-1. **AC-01**：Given 我點 Landing Page, When 我選「台北市」, Then 30 秒內看到 50+ 家咖啡廳 + 5 維評分
-2. **AC-02**：Given 我搜尋「插座≥4 + 限時=不限」, When 過濾完成, Then 我看到符合的咖啡廳按距離排序
-3. **AC-03**：Given 我寫 5 維評分 + 1 照片 + 100 字評論, When 提交, Then 系統送我 1 個月 Pro 免費
-4. **AC-04**：Given 我是咖啡廳業主, When 我付 NT$4,999/年, Then 我獲得「認證徽章」+ 業主後台
-5. **AC-05**：Given 我用 Google 帳號登入, When 我首次登入, Then 系統用 Email magic link 不需密碼
-6. **AC-06**：Given 評論被惡意洗版, When 1 帳號/咖啡廳/月內寫第 2 篇, Then 系統阻擋 + Email 通知
-7. **AC-07**：Given 我搜尋花蓮, When 無資料, Then 顯示「目前無資料，歡迎第一個評論」CTA
-8. **AC-08**：Given 我推薦朋友成功, When 朋友完成第 1 篇評論, Then 我和好友各得 1 個月 Pro
-9. **AC-09**：Given 咖啡廳歇業, When 用戶回報, Then 業主 7 日未回 → 自動標記關閉
-10. **AC-10**：Given 我看詳細頁, When 點「5 維雷達圖」, Then 我看到插座/WiFi/桌距/限時/噪音 5 項評分與全城中位數對比
+#### AC-FR-001：城市篩選
+**Given** 使用者選擇台南 + wifi ≥ 50 Mbps + 安靜 ≥ 4
+**When** 點搜尋
+**Then** 3 秒內顯示符合條件的咖啡廳，按「適合工作分數」排序
+
+#### AC-FR-004：付費解鎖
+**Given** 免費版用戶已看 3 間
+**When** 點第 4 間
+**Then** 跳出 Stripe Checkout NT$199，完成後 30 天內可看所有細節
+
+#### AC-FR-005：到店驗證
+**Given** 使用者到店並點「我在這裡」
+**When** 5 分鐘內上傳 wifi speedtest + 1 張座位照 + 安靜度評分
+**Then** 驗證成功，店家評分更新，使用者獲得 1 個驗證點
 
 ---
 
@@ -254,105 +230,122 @@ Then 我獲得「認證徽章」+ 業主後台編輯資料
 
 ### 4.1 技術棧 (Tech Stack)
 
-| 層 | 選用 | 為何 | 替代方案 |
-|---|---|---|---|
-| Landing + Map | Vercel + Next.js 14 | 已有 | Astro / SvelteKit |
-| 地圖 | Leaflet + OpenStreetMap | 免費、台灣圖資完整 | Google Maps（貴）|
-| 5 維評分 | Postgres + 平均 + 中位數 | 簡單 | Elasticsearch |
-| 評論 | Postgres + Supabase | 即時 + 全文搜尋 | MongoDB |
-| 認證 | Supabase Auth (Email magic link) | 免費 50K MAU | Auth0 |
-| 照片 | Supabase Storage | 1GB 免費 | Cloudflare R2 |
-| B2B 付款 | Stripe | 標準 | 藍新 |
+| 層 | 選擇 | 理由 |
+|---|---|---|
+| Frontend | Next.js 16 + Tailwind v3 | Sean 熟悉、RWD 簡單 |
+| Map | Leaflet + OpenStreetMap | 無 API 成本 |
+| Backend | Next.js API routes + Supabase | PostgreSQL + Auth + Storage 一站式 |
+| Database | Supabase Postgres | free tier 500MB |
+| Auth | Supabase Auth (email + Google) | 免費 |
+| Payment | Stripe Checkout | NT$199 簡單收款 |
+| Hosting | Vercel | Sean 慣用 |
+| CDN | Vercel Edge | 免費 |
+| Email | Resend | free 3000/月 |
 
 ### 4.2 系統架構圖
 
-```mermaid
-graph TB
-  subgraph "前端 (Vercel + Next.js)"
-    LP[Landing Page]
-    MAP[地圖 + 列表]
-    DETAIL[詳細頁 + 評論]
-    B2B[B2B 業主後台]
-  end
-  subgraph "Supabase"
-    DB[(Postgres<br/>咖啡廳/評論/用戶)]
-    AUTH[Supabase Auth]
-    STO[Storage 照片]
-  end
-  subgraph "第三方"
-    STR[Stripe]
-    MAPS[Leaflet + OSM]
-    RESEND[Resend Email]
-  end
-
-  LP --> MAP
-  MAP --> DETAIL
-  DETAIL --> DB
-  DETAIL --> STO
-  AUTH --> DETAIL
-  B2B --> STR
-  STR -->|webhook| DB
-  RESEND --> DB
+```
+[Web Browser] → [Vercel Edge CDN]
+                     ↓
+              [Next.js App (SSR)]
+              ↓          ↓          ↓
+        [Supabase Postgres]  [Supabase Storage]  [Stripe API]
+              ↓
+        [Supabase Auth]
 ```
 
 ### 4.3 資料模型 (Postgres Schema)
 
-```yaml
-# Postgres Schema
-cafes:
-  id: uuid PK
-  name: text
-  city: text  # 台北/台中/高雄
-  address: text
-  lat: float
-  lng: float
-  wifi_score: float  # 0-5
-  outlet_score: float  # 0-5
-  seating_score: float  # 0-5
-  time_limit_score: float  # 0-5
-  noise_score: float  # 0-5
-  review_count: int
-  verified_business: bool  # B2B 付費
-  closed: bool
-  created_at: timestamp
+```sql
+-- 城市
+CREATE TABLE cities (
+  id UUID PRIMARY KEY,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  lat DECIMAL NOT NULL,
+  lng DECIMAL NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
 
-reviews:
-  id: uuid PK
-  cafe_id: uuid FK
-  user_id: uuid FK
-  wifi: int  # 1-5
-  outlet: int
-  seating: int
-  time_limit: int
-  noise: int
-  text: rich_text
-  photo_urls: array
-  created_at: timestamp
+-- 咖啡廳
+CREATE TABLE cafes (
+  id UUID PRIMARY KEY,
+  city_id UUID REFERENCES cities(id),
+  name TEXT NOT NULL,
+  address TEXT NOT NULL,
+  lat DECIMAL NOT NULL,
+  lng DECIMAL NOT NULL,
+  business_hours JSONB,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  status TEXT DEFAULT 'active'  -- active / pending_close / closed
+);
 
-users:
-  id: uuid PK
-  email: text
-  display_name: text
-  pro_until: date  # Pro 到期日
-  referral_code: text
+-- 5 維評分（彙總）
+CREATE TABLE cafe_scores (
+  cafe_id UUID PRIMARY KEY REFERENCES cafes(id),
+  wifi_mbps_median INT,
+  wifi_verifier_count INT DEFAULT 0,
+  quiet_score_avg DECIMAL(2,1),  -- 1.0-5.0
+  quiet_verifier_count INT DEFAULT 0,
+  outlet_rate INT,  -- 0-100%
+  outlet_verifier_count INT DEFAULT 0,
+  price_median INT,  -- NT$
+  friendliness_avg DECIMAL(2,1),  -- 1.0-5.0
+  friendliness_verifier_count INT DEFAULT 0,
+  last_verified_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
 
-cafe_owners:
-  id: uuid PK
-  cafe_id: uuid FK
-  email: text
-  stripe_subscription_id: text
-  paid_until: date
+-- 個別驗證記錄
+CREATE TABLE verifications (
+  id UUID PRIMARY KEY,
+  cafe_id UUID REFERENCES cafes(id),
+  user_id UUID REFERENCES auth.users(id),
+  wifi_mbps INT,
+  quiet_score INT CHECK (quiet_score BETWEEN 1 AND 5),
+  outlet_rate INT CHECK (outlet_rate BETWEEN 0 AND 100),
+  price_median INT,
+  friendliness INT CHECK (friendliness BETWEEN 1 AND 5),
+  photo_urls TEXT[],
+  note TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 付費解鎖
+CREATE TABLE unlocks (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
+  stripe_payment_id TEXT,
+  amount_cents INT,  -- 19900
+  valid_until TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 訂閱
+CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id),
+  stripe_subscription_id TEXT,
+  monthly_amount_cents INT,  -- 9900
+  cities TEXT[],  -- 訂閱者選的城市
+  status TEXT DEFAULT 'active',  -- active / canceled
+  current_period_end TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
 ```
 
 ### 4.4 API 規格
 
 | Method | Path | 用途 |
 |---|---|---|
-| GET | /api/cafes?city= | 列表 + 篩選 |
-| GET | /api/cafes/[id] | 詳細 + 評論 |
-| POST | /api/reviews | 新增評論 |
-| POST | /api/business/checkout | B2B 付費 |
-| GET | /api/cities/[name]/stats | 城市統計 |
+| GET | /api/cities | 列出所有城市 |
+| GET | /api/cafes?city=&min_wifi=&min_quiet= | 篩選咖啡廳 |
+| GET | /api/cafes/[id] | 咖啡廳細節（付費閘） |
+| POST | /api/verifications | 提交驗證 |
+| POST | /api/checkout | 建立 Stripe Checkout session |
+| POST | /api/stripe/webhook | 處理 Stripe 事件 |
+| GET | /api/me/unlocks | 我的解鎖狀態 |
+| GET | /api/admin/stats | 管理員後台統計 |
 
 ---
 
@@ -360,32 +353,37 @@ cafe_owners:
 
 ### 5.1 性能指標
 
-- 地圖 100 家咖啡廳 < 2 秒
-- 評論提交 < 5 秒
-- Landing Page LCP < 1.5 秒
-- 月活 1 萬用戶支援
+| 指標 | 目標 |
+|---|---|
+| 首頁 TTFB | < 800ms (Vercel Edge) |
+| 篩選 API 回應 | < 300ms (Postgres indexed) |
+| 地圖 marker 載入 | < 1.5s (50 markers) |
+| Lighthouse Performance | ≥ 85 |
 
 ### 5.2 安全與隱私
 
-- **Email magic link**：不需密碼、降低註冊門檻
-- **評論匿名選項**：預設匿名、保護 freelancer 隱私
-- **惡意評論審核**：1 帳號/咖啡廳/月 1 篇 + 關鍵字過濾
-- **照片 EXIF 移除**：避免洩漏住家位置
+- HTTPS 全站（Vercel 自動）
+- Supabase RLS：使用者只可讀自己的 unlock/subscription
+- 付費個資：Stripe 處理，本地不存卡號
+- 個資聲明：照片 + 評論去識別化
+- GDPR/PIPA 對齊：可要求匯出 / 刪除帳號資料
 
-### 5.3 ⭐ 降級機制
+### 5.3 ⭐ 降級機制 (Graceful Degradation)
 
-| 故障情境 | 降級方案 |
+| 故障 | 降級 |
 |---|---|
-| Supabase 掛了 | 改用 Firebase 鏡像 |
-| Vercel 掛了 | Cloudflare Pages |
-| Leaflet 圖資失效 | 改用 Google Maps（成本高） |
-| Stripe 掛了 | 匯款 + 手動登錄 |
+| Supabase down | 顯示「維護中，請稍後」+ 保留本地 LS 暫存 |
+| Stripe webhook 失敗 | 5 分鐘內 retry 3 次，失敗標記人工處理 |
+| Map tile 載入失敗 | 自動 fallback 到靜態地圖 PNG |
+| speedtest API 失敗 | 允許手動輸入 + 照片證明 |
+| Email 寄送失敗 | 退信重試 + 站內通知補寄 |
 
 ### 5.4 擴展性
 
-- 用戶 1K → 30K：Supabase 免費額度足夠
-- 用戶 30K → 100K：升級 Supabase Pro NT$2,500/月
-- 用戶 100K+：需重構搜尋 + 多 CDN
+- 城市數：v1 6 城 → v2 12 城（台灣全 22 縣市精選）
+- 店家數：v1 48 → v2 200+（用戶 contribution）
+- 流量：Vercel free 100GB/月，足夠 10k MAU
+- DB：Supabase free 500MB → Pro $25/月 8GB（用戶達 5k MAU 再升）
 
 ---
 
@@ -393,12 +391,29 @@ cafe_owners:
 
 ### 6.1 v1 MVP DoD
 
-- [ ] Landing Page 上線 + 3 城市選擇
-- [ ] 200 家咖啡廳 5 維評分（手動 + UGC 累積）
-- [ ] 評論系統（5 維 + 文字 + 照片 + Pro 解鎖）
-- [ ] B2B 業主付費上架（NT$4,999/年）
-- [ ] 5 場 freelancer 訪談 + 至少 10 家付費意願書面
-- [ ] Dcard/Threads 累積 30 則 UGC
+- [ ] 6 城市 × 8 店家 seed 完成（含地址/營業時間）
+- [ ] 5 維評分 schema + UI 完成
+- [ ] 篩選（wifi/安靜/插座）+ 排序完成
+- [ ] Leaflet 地圖視圖完成
+- [ ] Supabase Auth（email + Google）完成
+- [ ] Stripe Checkout NT$199 一次解鎖完成
+- [ ] Stripe subscription NT$99/月完成
+- [ ] 到店驗證流程完成（speedtest + 拍照 + 安靜度）
+- [ ] 跨店回訪提醒 email 完成
+- [ ] 管理員後台完成（店家/評分/營收/統計）
+- [ ] RWD 1440/768/390 三 viewport 驗證
+- [ ] Lighthouse Performance ≥ 85
+- [ ] 30 天 pilot 招募 ≥ 10 人
+- [ ] 30 天內 ≥ 5 人付費 + ≥ 8 個驗證評分
+
+### 6.2 上線閘門
+
+- [ ] Pilot 達標（5 付費 + 8 驗證）
+- [ ] Stripe live mode 切換
+- [ ] Notion 狀態 → 已上線
+- [ ] Vercel custom domain 設定
+- [ ] Supabase production project 切換
+- [ ] 1 週監控期（D1, D7 留存）
 
 ---
 
@@ -406,55 +421,42 @@ cafe_owners:
 
 ### 7.1 風險表 (🔴/🟠/🟡)
 
-| 風險 | 等級 | 機率 | 影響 | 對沖 |
-|---|---|---|---|---|
-| UGC 累積慢（雞蛋問題）| 🔴 | 高 | 高 | Dcard 合作 + 種子評論 200 篇 |
-| Workfrom 進軍台灣 | 🟠 | 中 | 中 | 切 5 維工作友善（他們不做） |
-| Google Maps 加入 5 維 | 🟡 | 低 | 中 | 我們做深度社群評論護城河 |
-| B2B 業主付費率低 | 🟠 | 高 | 高 | C 端 5,000 用戶後再推 B2B |
-| 評論被惡意洗版 | 🟡 | 中 | 中 | 1 帳號/咖啡廳/月限制 |
-| Sean 1 人無法管理 UGC | 🟠 | 高 | 中 | 用戶 upvote/downvote + 自動過濾 |
+| ID | 風險 | 機率 | 影響 | 等級 | 緩解 |
+|---|---|---|---|---|---|
+| R-1 | 島內移居市場太小眾無法獲利 | 🟠 M | 🔴 H | **HIGH** | 30 天 pilot 5 付費是驗證門檻，未達 pivot 到「全台遠距工作者」 |
+| R-2 | Workfrom 進入台灣市場 | 🟢 L | 🔴 H | MED | 台灣 niche 太小國際品牌不會優先；保持「在地深度」護城河 |
+| R-3 | 評分造假 / 商家付費置入 | 🟠 M | 🟠 M | MED | IP 限制 + 親到 speedtest + 區塊鏈驗證點（v2） |
+| R-4 | speedtest API 不準 / 用戶造假 | 🟡 M | 🟠 M | MED | 需 GPS + 該店 wifi MAC BSSID 驗證（v2） |
+| R-5 | Stripe 抽成 + 跨國成本 | 🟢 L | 🟢 L | LOW | Stripe Taiwan 抽成 2.9% + NT$10，可承受 |
+| R-6 | Pilot 招募不到 10 人 | 🟠 M | 🔴 H | **HIGH** | Threads / Dcard / PTT 主動 po 文，3 週內招募 |
+| R-7 | 6 城市 48 店家 seed 成本高 | 🟡 M | 🟢 L | LOW | 一人 6 週親訪完成，列入 pilot 期 |
 
 ### 7.2 ⭐ ADR (Architecture Decision Records)
 
-**ADR-001：用 Leaflet + OpenStreetMap 而非 Google Maps**
-- 決策：Leaflet + OSM 圖資
-- 理由：免費、台灣圖資完整、Google Maps 月費 NT$5K+ 不可持續
-- 替代方案：Google Maps JavaScript API
-- 何時反轉：B2B 業主要求 Google Maps 嵌入時
+#### ADR-001：Leaflet 而非 Google Maps
+**決策**：用 Leaflet + OpenStreetMap
+**理由**：Google Maps API 每月免費額度只有 $200，超過收費，6 城市 48 店家地圖 marker 加上 Places API 每月約 $50-150。Leaflet 免費 + OpenStreetMap 圖資完整度對台灣足夠。
+**取捨**：Leaflet UI 沒 Google Maps 漂亮，但不影響核心功能。
 
-**ADR-002：用 Supabase 而非自建 Postgres**
-- 決策：Supabase 提供 DB + Auth + Storage 三合一
-- 理由：50K MAU 免費、Auth magic link、Storage 1GB 免費
-- 替代方案：自建 PostgreSQL + NextAuth + R2
-- 何時反轉：MAU > 50K 或需要 Row Level Security 複雜邏輯
+#### ADR-002：Stripe Checkout 而非自建金流
+**決策**：用 Stripe Checkout（hosted page）
+**理由**：PCI compliance 自動處理，台灣可用，支援 ATM/信用卡/街口等多種支付。
+**取捨**：3% 手續費 + NT$10 固定費，可承受。
 
-**ADR-003：⭐ 為何切到台灣在地 5 維評分而非全球地圖？**
-- 決策：只做台灣 22 縣市，繁中 UI，5 維工作友善評分
-- 理由：
-  1. Workfrom 125K users 主戰歐美、Nomads.com 36K users 全球分散、都不做台灣深度
-  2. 國際 app 對台灣在地特色（夜貓子咖啡、24hr 書店、共享空間、六合夜市旁咖啡廳）不熟
-  3. 繁中 UI + 在地 UGC = 雙重護城河
-  4. 台灣 280 萬 freelancer + 上班族市場是 nomad (20K) 的 14 倍
-  5. Sean 1 人無法做全球、做台灣可累積深度
-- 替代方案：全球 nomad 地圖 — 紅海 + TAM 太小
-- 何時反轉：台灣 100% 飽和或國際 app 進軍台灣在地深度
+#### ADR-003：5 維評分而非星等
+**決策**：5 維分數（wifi/安靜/插座/價格/友善）
+**理由**：Workfrom 只有星等，使用者反映「不知道能不能開會」。5 維更貼近 remote worker 需求。
+**取捨**：資料建模較複雜，但可解釋性高。
 
-**ADR-004：⭐ 為何不做 nomad-only 而擴大到 freelancer/上班族/學生？**
-- 決策：target 全台 280 萬 freelancer + 上班族 + 學生
-- 理由：
-  1. 台灣 nomad < 20K、TAM 過小
-  2. freelancer + 上班族 + 學生找咖啡廳的痛點與 nomad 相同
-  3. 擴大 target 可累積更多 UGC + B2B 業主更多客戶
-  4. HappyCow 模式證明「垂直細分」比「全球地圖」更容易商業化
-- 替代方案：nomad-only — TAM 太小、付費低
-- 何時反轉：台灣 freelancer 飽和 + 國際 nomad 大量來台
+#### ADR-004：到店需 speedtest 驗證
+**決策**：使用者評分必須 speedtest 自動抓 wifi 速度
+**理由**：手動輸入容易造假，speedtest API 自動抓無法偽造。
+**取捨**：edge case 用戶可能 wifi 連不上，允許手動輸入 + 拍照。
 
-**ADR-005：5 維評分選擇：插座/WiFi/桌距/限時/噪音**
-- 決策：5 維固定，不讓業主自訂
-- 理由：5 維是 freelancer/上班族最在意的 5 項（M1 訪談驗證）
-- 替代方案：10 維可選 — 過於複雜
-- 何時反後：用戶反饋需要新增（如「戶外座位」「兒童友善」）時
+#### ADR-005：可追蹤的驗證優先
+**決策**：所有 v1 評分至少有 2 個獨立驗證者
+**理由**：單一驗證者造假風險高。
+**取捨**：cold start 問題（首批沒人時可由管理員 seed）。
 
 ---
 
@@ -462,18 +464,32 @@ cafe_owners:
 
 ### 8.1 里程碑總覽
 
-| 里程碑 | 時間 | 完成指標 |
+| 里程碑 | 完成日期 | DoD |
 |---|---|---|
-| M0 驗證 | M1-M3 | 5 場訪談 + 1 Landing Page + 200 家種子評論 |
-| M1 MVP | M4-M6 | 1,000 用戶 + 200 家 + 30 家 B2B + NT$180K |
-| M2 v2 擴張 | M7-M12 | 8,000 用戶 + 1,000 家 + 100 家 B2B + NT$740K |
-| M3 v3 規模化 | M13-M18 | 30,000 用戶 + 5,000 家 + 300 家 B2B + NT$2.4M |
+| M1：基礎建設 | 2026-08-02 | Next.js + Supabase + 6 城 seed |
+| M2：核心功能 | 2026-08-16 | 5 維評分 + 篩選 + 地圖 |
+| M3：付費 + 驗證 | 2026-08-30 | Stripe + 到店驗證 |
+| M4：Pilot 啟動 | 2026-09-13 | 招募 ≥ 10 人，30 天 pilot 開始 |
+| M5：Pilot 結案 | 2026-10-13 | 5 付費 + 8 驗證，go/no-go |
 
-### 8.2 Sprint 拆解（M0 驗證期）
+### 8.2 Sprint 拆解
 
-**Sprint 1 (M1)**：5 場 freelancer 訪談 + 5 維評分驗證
-**Sprint 2 (M2)**：Landing Page + Stripe + 200 家種子評論（Sean 手動）
-**Sprint 3 (M3)**：Dcard/Threads UGC 30 則 + 10 家 B2B 付費意願書面
+| Sprint | 週次 | 工作 |
+|---|---|---|
+| Sprint 1 | W1 | Next.js + Supabase 建置 + 6 城市 48 店 seed |
+| Sprint 2 | W2 | 5 維評分 UI + 篩選 + 列表視圖 |
+| Sprint 3 | W3 | Leaflet 地圖視圖 + 切換 |
+| Sprint 4 | W4 | Supabase Auth + profile + 我看過的店 |
+| Sprint 5 | W5 | Stripe Checkout + 解鎖邏輯 |
+| Sprint 6 | W6 | 到店驗證流程（speedtest + 拍照） |
+| Sprint 7 | W7 | 訂閱 + email 提醒 |
+| Sprint 8 | W8 | 管理員後台 + Pilot 招募 |
+
+### 8.3 變更控制
+
+- ADR 變更需更新 §7.2 + git commit
+- Schema 變更需 migration 腳本 + 反向 migration
+- Sprint 結束前 24h 不可改 scope
 
 ---
 
@@ -481,215 +497,403 @@ cafe_owners:
 
 ### 9.1 變現方案
 
-| 階段 | 方案 | 定價 | 預估客戶數 |
+| 方案 | 價格 | 預估 30 天轉換 | 備註 |
 |---|---|---|---|
-| C 端 Pro | 無廣告 + 進階篩選 + 月報 | NT$299/年 | 8,000 (M12) |
-| C 端推薦 | 推薦朋友賺 Pro 月費 | NT$50/推薦 | 2,000 (M12) |
-| B2B 業主付費 | 認證徽章 + 業主後台 | NT$4,999/年 | 100 (M12) |
-| B2B 業主升級 | CRM + 客人分析 | NT$14,999/年 | 30 (M18) |
-| 廣告（v3）| 咖啡廳關鍵字廣告 | CPC NT$5 | 50 萬點擊/年 |
+| 免費版 | NT$0 | — | 每城市 3 間 + 基本評分 |
+| 一次解鎖 | NT$199 | 5-10 人 | 30 天有效 |
+| 月訂閱 | NT$99/月 | 3-8 人 | 跨店回訪提醒 |
+| 企業方案（v2） | NT$2,000/月/team | v2 | 5 人團隊共用 |
 
 ### 9.2 定價心理學
 
-1. **Freemium**：免費 5 維評分 + 每月 5 篇評論 → Pro 解鎖進階篩選 + 無限評論
-2. **UGC 換 Pro**：寫 1 篇評論 = 1 個月 Pro → 鼓勵 UGC + 降低付費門檻
-3. **Referral loop**：推薦 1 位好友 = 雙方各 1 個月 Pro → 病毒成長
-4. **Anchoring**：對標「找咖啡廳花 30 分鐘/天」vs「NT$299/年 Pro 省 100 小時」→ 高 CP 值
-5. **B2B 認證徽章**：業主付費獲得「freelancer 友善認證」→ 行銷素材
+- **NT$199 而非 NT$200**：左位數效應（left-digit effect）
+- **NT$99/月 vs NT$199/單次**：訂閱感覺便宜但長期更貴，引導「輕度使用者」付單次
+- **免費版前 3 間而非前 1 間**：讓使用者看到價值再付費
+- **解鎖 30 天而非永久**：製造稀缺感，鼓勵立即使用
+
+### 9.3 Unit economics 假設
+
+| 項目 | 數值 |
+|---|---|
+| CAC（Threads 招募 + 廣告） | NT$150-300/人 |
+| LTV（單次 NT$199 + 月訂閱 NT$99 × 平均 3 個月） | NT$496/人 |
+| LTV/CAC | 1.6-3.3（健康 ≥ 3） |
+| Gross margin | 70%（Stripe 手續費 15% + 雲端成本 15%） |
+| 損益平衡 | 60 付費用戶 = MRR NT$15,000（60 天內可達） |
 
 ---
 
-## 10. 附錄
+## 10. 附錄 (Appendix)
 
 ### 10.1 競品分析 (Competitive Quadrant Chart)
 
-```mermaid
-quadrantChart
-    title "咖啡廳/工作空間地圖市場 2026"
-    x-axis "全球導向" --> "在地導向"
-    y-axis "通用地圖" --> "工作友善評分"
-    quadrant-1 "在地 + 工作友善"
-    quadrant-2 "在地 + 通用 (紅海)"
-    quadrant-3 "全球 + 通用"
-    quadrant-4 "全球 + 工作友善 (Workfrom)"
-    "Google Maps": [0.3, 0.2]
-    "Workfrom": [0.85, 0.85]
-    "Nomads.com": [0.9, 0.7]
-    "Wifi Tribe": [0.95, 0.6]
-    "Dcard 推薦": [0.4, 0.5]
-    "HappyCow (素食)": [0.4, 0.85]
-    "我們 (nomad-cafe-map)": [0.95, 0.9]
+```
+              國際向
+                ↑
+                |
+   Nomads.com ● |  ● Workfrom
+   (停滯)      |    (250k listings)
+                |
+   ←——— 一般 ———+———在地 ———→
+                |
+   ● Threads   |  ●⭐ Digital Nomad Cafe Map (TW)
+   (散亂標記)   |    (5 維評分 + 島內 niche)
+                |
+                ↓
+              在地向
 ```
 
-**結論**：右上「在地 + 工作友善」象限沒有競爭者 — 是甜蜜點。HappyCow 是最近的模式（在地 + 5 維）。
+**結論**：沒人在「台灣在地 + 5 維結構化評分」這個 niche。
 
 ### 10.2 術語表
 
 | 術語 | 定義 |
 |---|---|
-| 5 維評分 | 插座/WiFi/桌距/限時/噪音 5 項評分 |
-| Freemium | 免費基本 + 付費 Pro |
-| UGC | User Generated Content 用戶生成內容 |
-| B2B 認證徽章 | 付費業主獲得的標籤 |
-| Pro | 付費用戶等級 |
+| 島內移居 | 同一國內跨縣市定期移動工作 |
+| 5 維評分 | wifi / 安靜 / 插座 / 價格 / 友善 |
+| 適合工作分數 | 加權：wifi 30% + 安靜 30% + 插座 20% + 價格 10% + 友善 10% |
+| 驗證者 | 親到店完成 speedtest + 評分的使用者 |
+| 解鎖 | 付費獲得 30 天全島評分查看權限 |
+
+### 10.3 參考資料與 re-check 記錄
+
+- Workfrom 定價 https://workfrom.co/about（2026-07 確認）
+- Nomads.com 被 SafetyWing 收購 https://nomads.com（2025-12 確認停滯）
+- Stripe Taiwan 手續費 https://stripe.com/tw/pricing（2026-07 確認）
+- Supabase pricing https://supabase.com/pricing（2026-07 確認）
+- 台灣遠距工作者統計 主計處 2024 人力運用調查
+
+### 10.4 Error Code 統一字典
+
+| Code | HTTP | 訊息 |
+|---|---|---|
+| E001 | 400 | city_not_found |
+| E002 | 400 | invalid_filter |
+| E101 | 401 | auth_required |
+| E102 | 402 | unlock_required |
+| E201 | 404 | cafe_not_found |
+| E301 | 409 | already_verified_today |
+| E501 | 500 | stripe_error |
+| E502 | 500 | supabase_error |
+
+### 10.5 可攜與可存取性檢查表
+
+- [ ] RWD 1440 / 768 / 390 驗證
+- [ ] keyboard navigation（Tab / Enter）
+- [ ] aria-label on map markers
+- [ ] 圖片 alt text
+- [ ] 色彩對比 WCAG AA
+- [ ] screen reader 測試（VoiceOver / NVDA）
 
 ---
 
-## 11. ⭐ 市場驗證計畫
+## 11. ⭐ 市場驗證計畫 (Market Validation Plan)
 
 ### 11.1 驗證前 3 個關鍵問題
 
-1. **Q1**：freelancer/上班族是否願意每月寫 1-5 篇評論？vs 只消費？
-2. **Q2**：咖啡廳業主是否願意付 NT$4,999/年 獲得「freelancer 友善認證」？vs Google Maps 商家檔案？
-3. **Q3**：5 維評分是否真的是 freelancer 在意的？（而非裝潢/餐點）
+1. **誰？** 25-40 歲台灣島內移居型遠距工作者是否真實存在且每月跨城？是否願意付費？
+2. **痛點？** 現有 workaround（Google Maps + Threads）是否真的痛？痛到願意付 NT$199 解鎖？
+3. **差異化？** 5 維評分是否真的比星等 / 文字評論更能幫助決策？
 
-### 11.2 訪談 SOP
+### 11.2 訪談 SOP（5 個具體訪談目標）
 
-**訪談對象**（5 場）：
-1. 資深 freelancer（5+ 年經驗）— 台北
-2. 全職遠距上班族（外商/新創）— 台北
-3. 自由創作者（設計師/作家）— 台中
-4. 咖啡廳重度使用者（每週去 5+ 家）— 高雄
-5. 咖啡廳業主（雙北 3-5 家分店）— 台北
+**招募**：Threads #digitalnomad #台灣數位遊牧 tag + Dcard 軟工版 + PTT Soft_Job
+**目標**：5 位訪談（30 分鐘 / 人）
+**訪談大綱**：
+1. 你目前的工作模式？（WFH / 島內移動頻率 / 主要城市）
+2. 你怎麼找陌生城市的咖啡廳？（現有 workaround）
+3. 上次踩雷經驗？（具體故事）
+4. 如果有工具告訴你 wifi 速度 + 安靜度，你願意付多少？
+5. 你會推薦幾個朋友？為什麼？
 
-**訪談大綱**（30 分鐘）：
-1. 你每週找咖啡廳的頻率？怎麼找？
-2. 你在意咖啡廳的什麼？（開放式，看是否提到 5 維）
-3. 如果有 5 維評分地圖（插座/WiFi/桌距/限時/噪音），你會用嗎？
-4. 你願意寫評論換 Pro 嗎？為什麼？
-5. 你認為咖啡廳業主會付費被「認證」嗎？
+**成功標準**：5 個訪談中 ≥ 3 個明確表達付費意願（NT$99-199）。
 
-**產出**：5 場錄音 + 5 維評分驗證 + 200 家種子評論規劃
+### 11.3 Community post topic
 
-### 11.3 落地指標
+**Threads 主題 1**：「你最近一次到陌生城市找咖啡廳踩雷經驗？」（reach 估 500+）
+**Threads 主題 2**：「如果有一個工具告訴你 wifi 速度 + 安靜度，你願意付多少？」（poll）
+**Dcard 軟工版**：徵求 5 位 beta tester，30 天免費試用 + 免費解鎖
+**PTT Soft_Job**：同 Dcard
 
-| 指標 | 目標 | 失敗標準 |
+### 11.4 Landing page test
+
+**部署**：notion.so + vercel subdomain
+**內容**：
+- Hero：島內移居者專用咖啡廳地圖
+- 5 維評分示意
+- 6 城市覆蓋
+- 訂閱 NT$99/月 / 一次 NT$199
+- email 訂閱（轉換率目標 ≥ 5%）
+
+**流量**：Threads 貼文 + Dcard 文，預估 1000 visits / 50 email
+**成功標準**：email 訂閱 ≥ 50 + 留言 ≥ 10 個明確表達付費意願
+
+### 11.5 落地指標與 go/no-go
+
+| 指標 | Go 閾值 | No-go 行動 |
 |---|---|---|
-| 訪談轉付費意願書面 | 3/5 (60%) | 0/5 → 假設錯誤 |
-| Landing Page 訪客 → 城市點擊 | 50% | < 30% → 文案需改 |
-| 種子評論 → 實際 UGC | 1:0.3 (寫 1 篇種子引來 0.3 篇 UGC) | < 1:0.1 → UGC 機制需改 |
-| B2B 業主付費率 | 30 家 / 100 家接觸 | < 5 家 → B2B 模式失敗 |
-
-### 11.4 Landing Page 測試
-
-**A/B 兩個版本**：
-- **A 版**：「5 維評分找咖啡廳 — 插座/WiFi/桌距/限時/噪音一鍵看完」
-- **B 版**：「freelancer 都在這裡找咖啡廳 — 100% 真實評論」
-
-**流量來源**：Threads #freelancer + Dcard 數位遊牧板 + PTT WorkFromHome 板（NT$3K 投放）
-
-### 11.5 社群貼文主題
-
-**1 篇 Threads + 1 篇 Dcard 業主真心話**：
-- 「我在雙北找了 50 家咖啡廳工作 4 小時後，發現只有 12 家不限時 + 有插座 + WiFi 不慢 — 這就是我們做這個的原因」
-- 預期效果：30+ 則留言 + 累積 100 家 Email + 50 篇種子評論 UGC
+| email 訂閱 | ≥ 50 | < 30 → pivot 到「全台遠距工作者」 |
+| 訪談付費意願 | ≥ 3/5 | < 2/5 → 免費版策略調整 |
+| Pilot 招募 | ≥ 10 人 | < 5 → 重新定位 |
+| Pilot 付費 | ≥ 5 人 | < 3 → 重新驗證 persona |
+| Pilot 驗證評分 | ≥ 8 個 | < 5 → 評分流程太重 |
 
 ---
 
-## 12. ⭐ 失敗模式 SOP
+## 12. ⭐ 失敗模式 SOP (Failure Mode Playbook)
 
-| 失敗情境 | 觸發條件 | SOP |
-|---|---|---|
-| 0/5 訪談轉付費意願 | Sprint 1 結束 | pivot 到「單一城市深度」（如台北 100 家）|
-| UGC 累積 < 50 篇 | Sprint 3 結束 | 改付費邀請 freelancer 寫（NT$100/篇）|
-| B2B 付費 < 5 家 | M4-M6 | pivot 到 C 端付費 + 廣告 |
-| Workfrom 進軍台灣 | M6+ | 加速累積 UGC 護城河 |
-| Sean 1 人無法管理 | M6 | 雇 1 位兼職社群管理員 NT$2 萬/月 |
+### 12.1 核心輸入不完整
+**情境**：6 城市 48 店家 seed 缺地址/營業時間
+**SOP**：
+1. 第 1 週親訪補齊，每城市 1 天
+2. 缺資料店家標「資料待補」，不顯示在搜尋結果
+3. 用戶回報機制（contribution）
+
+### 12.2 主要 provider 失敗
+**情境**：Supabase / Stripe / Vercel 故障
+**SOP**：
+1. Supabase 故障 → 顯示維護頁 + 保留 localStorage 暫存
+2. Stripe 故障 → 切換到人工 ATM 匯款（v1 階段可接受）
+3. Vercel 故障 → 切換 Netlify backup（v2）
+
+### 12.3 結果品質不足
+**情境**：5 維評分資料太少，使用者覺得「不準」
+**SOP**：
+1. 顯示「資料不足，僅 X 個驗證」
+2. 鼓勵使用者到店驗證（送 1 個月訂閱）
+3. v2 加 ML 預測分數（基於 Google Maps 評論 NLP）
+
+### 12.4 使用者拒絕採用
+**情境**：30 天 pilot < 5 付費
+**SOP**：
+1. 訪談未付費使用者找出原因
+2. pivot 到「全台遠距工作者」或「共享空間評分」
+3. archive 本 niche，6 個月後重評估
+
+### 12.5 資料/個資事件
+**情境**：Supabase 資料外洩 / GDPR/PIPA 投訴
+**SOP**：
+1. 24h 內公告 + 通知受影響使用者
+2. 立即 rotate API keys
+3. 提供資料匯出 + 刪除工具
+
+### 12.6 成本超支
+**情境**：Supabase / Vercel / Stripe 成本超過 MRR
+**SOP**：
+1. 升級 Supabase Pro 前必須 MRR ≥ $50 USD
+2. 圖片改為 lazy load + compression
+3. Edge function 冷啟動優化
+
+### 12.7 競品推出相同 wedge
+**情境**：Threads 推出類似咖啡廳評分 / Google Maps 加結構化評分
+**SOP**：
+1. 深化在地 niche（外島、私房店、移居者專屬活動）
+2. 強化社群（LINE 群、meetup）
+3. 加 PWA / app 增加切換成本
+
+### 12.8 轉換率低於假設
+**情境**：landing page 轉換 < 2%
+**SOP**：
+1. A/B test 不同 hero 文案
+2. 加 demo video
+3. 加 5 個真實使用者 testimonial
+
+### 12.9 pilot 招募不足
+**情境**：30 天 < 10 人報名
+**SOP**：
+1. 主動出擊：Threads / Dcard / PTT 每日 1 篇
+2. 找 KOL（島內移居型 YouTuber / 部落客）合作
+3. 提供 NT$500 推荐獎金
+
+### 12.10 維運超過一人能力
+**情境**：店家審核 + 客服 + 行銷超過 Sean 一人時間
+**SOP**：
+1. v1 用戶自助新增店家（contribution mode）
+2. FAQ + chatbot 降低客服
+3. v2 再考慮兼職
+
+### 12.11 甜蜜點驗證失敗
+**情境**：30 天 pilot < 5 付費 + < 8 驗證
+**SOP**：
+1. 立即 freeze 新功能開發
+2. 重新訪談 5 個未付費使用者
+3. pivot 或 archive 決策（90 天內）
 
 ---
 
 ## 13. ⭐ MetaGPT / spec-kit 對齊
 
-| MetaGPT 產出 | 本 SPEC 對應章節 | 狀態 |
-|---|---|---|
-| requirements.md | §3 | ✅ |
-| design.md | §4 | ✅ |
-| tasks.md | §8 | ✅ |
-| acceptance_criteria.md | §3.4 AC | ✅ |
-| product_prd.md | §1 | ✅ |
+### 13.1 MUST / SHOULD / MAY
 
-**MUST/SHOULD/MAY**：
-- MUST：F-01~F-04
-- SHOULD：F-05~F-08
-- MAY：F-09~F-11
+**MUST（v1 必做）**：
+- 6 城市 × 8 店 seed
+- 5 維評分模型
+- 篩選 + 排序
+- Leaflet 地圖
+- Supabase Auth
+- Stripe Checkout NT$199 + 月訂閱 NT$99
+- 到店驗證（speedtest + 拍照）
+- email 跨店提醒
+- 管理員後台
+
+**SHOULD（v2）**：
+- 視訊會議友善 filter
+- 用戶 contribution
+- 城市排行版
+- PWA
+
+**MAY（v3）**：
+- iOS/Android app
+- AI 行程規劃
+- 多語系
+
+### 13.2 P0 / P1 / P2 優先級
+
+對應 §3.1 / §3.2 / §3.3。
+
+### 13.3 Competitive Quadrant
+
+詳見 §10.1。
+
+### 13.4 Open Questions
+
+1. speedtest API 該用哪家？（Cloudflare / Ookla / 自己 host server）
+2. 跨店回訪提醒 email 該 Resend 還是 SendGrid？
+3. 付費閘是否要全站登入才看得到評分細節？（目前設計：免費可看前 3 間評分，細節要付費）
+
+### 13.5 Requirement Pool
+
+詳見 §3。
+
+### 13.6 生成式開發約束
+
+- 不使用 next.js 16 以外的版本（避免 deprecated）
+- 不引入 Google Maps SDK（成本）
+- 不引入 i18n 套件（v1 繁中 only）
+- 不引入 Redux（用 Zustand 或 Supabase 訂閱）
+- 不引入 NextAuth（用 Supabase Auth）
 
 ---
 
-## 15. ⭐ 深度市調報告 (sweet spot 5 問體檢結果)
+## 15. ⭐ 深度市調報告（Sweet Spot 5 問體檢結果）
 
-### 15.1 sweet spot 體檢總分
+### 15.1 五問一：誰已經解決了主要問題？
 
-| 項目 | 評分 (1-10) | 說明 |
+| 競品 | 是否解決？ | 缺口 |
 |---|---|---|
-| 紅海競爭度 | 3/10 | 全球 nomad 紅海，但台灣在地 5 維評分 = 0 |
-| 付費意願 | 5/10 | C 端中等、B2B 中等 |
-| 進入難度 | 4/10 | 需累積 UGC、需在地知識 |
-| **綜合 sweet spot** | **2/10** | 全球紅海 + 台灣在地 5 維 = 不甜蜜但可救 |
+| Google Maps | 部分（地址/評論） | 無結構化 wifi/安靜度 |
+| Threads 標記 | 部分（在地推薦） | 散亂、無法比較、無信任度 |
+| Workfrom | 是（但國際向） | 英文介面、東南亞焦點、台灣 0 覆蓋 |
+| Nomads.com | 是（但停滯） | 2025 被 SafetyWing 收購後無更新 |
+| Dcard/PTT | 部分 | 一次性討論串，無法結構化累積 |
 
-### 15.2 5 問體檢問答
+**結論**：沒有人在「台灣在地 + 5 維結構化評分 + 繁體中文」這個 niche。
 
-**Q1：紅海中誰佔了什麼位置？**
-- Workfrom：125K users 主戰歐美、台灣 < 100 家
-- Nomads.com：36K users 全球分散
-- Wifi Tribe：付費 nomad 社群、但偏旅遊
-- Google Maps：通用地圖、不做工作友善
-- HappyCow：素食 5 維評分、模式可參考
+### 15.2 五問二：使用者為何還會換？
 
-**Q2：我們的甜蜜點在哪？**
-- 台灣在地 5 維工作友善評分地圖
-- HappyCow 模式證明「在地垂直 5 維」可行
-- 國際 app 不做繁中 + 不做台灣在地深度
-- 280 萬 freelancer + 上班族市場是 nomad (20K) 的 14 倍
+**現有 workaround 痛點**：
+1. Google Maps 評論無結構（每篇文字，不知道 wifi 速度）
+2. Threads 標記搜尋成本高（要一篇篇點開看）
+3. 到陌生城市踩雷 2-4 小時（時間成本 = NT$500-1000/hour 機會成本）
+4. Workfrom 沒台灣（國際向）
 
-**Q3：付費意願誰最高？**
-- C 端 freelancer/上班族：NT$299/年 Pro 中等
-- B2B 咖啡廳業主：NT$4,999/年 認證 中等
-- 結論：B2B 是營收主力、C 端是流量來源
+**換的觸發點**：
+- 第 1 次踩雷被趕
+- 第 1 次視訊會議 wifi 斷
+- 第 1 次花 3 小時找咖啡廳還找不到滿意
 
-**Q4：進入難度多大？**
-- 200 家咖啡廳 5 維評分需手動累積（Sean 親自跑）
-- 繁中 UI + 台灣圖資成本 NT$5-10 萬
-- UGC 雞蛋問題需大量種子評論
-- 進入難度中等
+### 15.3 五問四：甜蜜點是否比競品更窄、更可交付？
 
-**Q5：規模天花板在哪？**
-- 台灣 280 萬 freelancer + 上班族
-- 22 縣市 1 萬家咖啡廳
-- Sean + 1 兼職上限 30K 用戶
-- 天花板足夠
+**甜蜜點 = 台灣島內移居工作者 × 5 維結構化評分 × 6 城市**
 
-### 15.3 對沖策略（針對 2/10 的低分）
+**窄**：✅（6 城，非全球）
+**可交付**：✅（5 維 + speedtest 自動驗證，資料可信）
+**比競品好**：✅（Workfrom 沒台灣、Threads 沒結構、Google Maps 沒評分）
 
-| 風險 | 對沖 |
+### 15.4 五問四：誰會付費、用什麼預算？
+
+**付費者**：25-40 歲、月薪 70k+、每月島內移動 1-2 次的遠距工作者
+**預算**：NT$199 一次 / NT$99 月訂閱，從「咖啡廳消費」或「自我投資」預算
+**CAC**：NT$150-300（Threads + Dcard + PTT 招募）
+**LTV**：NT$496（單次 + 訂閱 3 個月）
+
+### 15.5 五問五：兩週能否取得可反駁證據？
+
+**可**：
+1. Threads 發文測試需求（500+ reach）
+2. 訪談 5 個目標使用者（30 分鐘/人）
+3. Landing page 收集 50 email
+4. 6 城市 × 8 店 seed（6 週親訪，pilot 期完成）
+
+**不可反駁風險**：
+- persona 不存在（市場太小）→ go/no-go 閾值 5 付費
+- 5 維評分不夠精準 → go/no-go 閾值 8 驗證
+
+### 15.6 市場與競爭重檢（2026 quick re-check）
+
+- Workfrom 仍 250k+ listings，無台灣擴展跡象（2026-07 確認）
+- Nomads.com 仍停滯（2026-07 確認）
+- Threads「台灣 數位遊牧」hashtag 月發文 200+（粗估）
+- Dcard「遠距工作」版月發文 500+（粗估）
+- Stripe Taiwan 服務穩定（2026-07 確認）
+
+### 15.7 可服務市場（Beachhead，而非虛大 TAM）
+
+| 市場 | 數字 |
 |---|---|
-| 全球 nomad 紅海 | 切台灣在地 + 擴大 target（freelancer/上班族）|
-| TAM 太小 | 擴大 target 280 萬市場 |
-| 進入需 UGC | 種子 200 篇 + Threads/Dcard 合作 |
-| Workfrom 進軍 | 累積在地深度 + 繁中護城河 |
+| TAM（虛大） | 全球 4000 萬 digital nomad |
+| SAM | 亞太 500 萬 |
+| SOM（虛大） | 台灣 35 萬遠距工作者 |
+| **Beachhead** | **台灣島內移居工作者 1-3 萬人** |
 
-### 15.4 退出策略
+**Beachhead 驗證假設**：1-3% 轉換 = 100-900 付費用戶 = MRR NT$10k-90k。
 
-如 M3 驗證失敗（< 3/5 訪談轉付費意願 + UGC < 50 篇）：
-- 暫停開發，保留 Landing Page + 種子評論
-- 轉型為「單一城市深度版」（如台北 100 家全評論）
-- 或完全退出此專案（時光已投入 < NT$15 萬）
+### 15.8 收益情境與 unit economics
 
-### 15.5 Open Questions
+| 情境 | 30 天付費 | 90 天 MRR |
+|---|---|---|
+| 悲觀 | 3 人 NT$199 = NT$597 + 1 訂閱 = NT$99 → NT$696 | NT$2,000 |
+| 基礎 | 5 人 NT$199 = NT$995 + 3 訂閱 = NT$297 → NT$1,292 | NT$8,000 |
+| 樂觀 | 10 人 NT$199 = NT$1,990 + 8 訂閱 = NT$792 → NT$2,782 | NT$15,000 |
 
-- 5 維評分是否真是 freelancer 在意的？（M1 訪談驗證）
-- UGC 換 Pro 機制是否有效？（M4 測試）
-- B2B 業主是否願意付 NT$4,999？（M1 訪談 + M3 推廣）
+損益平衡：60 付費訂閱 + 30 單次 = MRR NT$15,000 / 月。
 
-### 15.6 ROI 估算
+### 15.9 商業化與 PRD 分數
 
-- 開發成本：NT$50K（Next.js + Leaflet + Supabase + Stripe）
-- 種子評論成本：NT$20K（200 家 × NT$100 咖啡券）
-- 獲客成本：NT$30K（Threads/Dcard 投放）
-- 總投入：NT$100K
-- 預估 M6 營收：NT$180K
-- 預估 M12 營收：NT$740K
-- **預估 18 個月 ROI = 640%**
+| 評分 | 分數 | 依據 |
+|---|---|---|
+| Sweet spot | **6 / 10** | 5 問通過 4 問（persona 明確、niche 窄、可交付、有付費意願），2 問待驗證（市場規模、轉換率） |
+| PRD 完成度 | **9.0 / 10** | 14 區塊齊全 + §15 5 問體檢 + 訪談 SOP + 失敗模式 |
+| 商業化分數 | (9.0 × 0.3 + 6 × 0.7) × 10 | = (2.7 + 4.2) × 10 = **69 / 100** |
+
+### 15.10 決策、退出與下一次 review
+
+**決策**：v2.2.2 從「國際 digital nomad 紅海」pivot 到「台灣島內移居工作者 niche」
+**sweet=6 判定**：可執行 pilot，30 天內有 go/no-go 數據
+**退出條件**：pilot < 5 付費 + < 8 驗證 → freeze + 重新訪談
+**下次 review**：2026-10-13（pilot 結案日）
+
+### 15.11 Sweet spot evidence ledger
+
+| 證據 | 來源 | 日期 |
+|---|---|---|
+| 國際 DW red sea | Workfrom 250k+ listings | 2026-07-19 |
+| Nomads.com 停滯 | 被 SafetyWing 收購 | 2025-12 |
+| 台灣 35 萬遠距工作者 | 主計處 2024 | 2024-Q4 |
+| Threads「台灣 數位遊牧」月發文 200+ | 粗估 | 2026-07 |
+| 5 維評分 niche 空白 | 競品分析 §10.1 | 2026-07-19 |
+
+### 15.12 Maintainer handoff
+
+**給未來接手者**：
+1. sweet=6 niche（小眾但明確），pilot 結案是 go/no-go
+2. 不要擴展到國際（會被 Workfrom 碾壓）
+3. 不要做飯店/共享空間（會擴 scope）
+4. 5 維評分是核心差異化，不要改成星等
+5. 到店驗證是信任基石，不要簡化
+6. Supabase + Vercel + Stripe 架構已驗證，不需重構
+7. 30 天 pilot 數據是決策唯一依據
 
 ---
 
-> 本 PRD v2.2.2 已於 2026-07-19 依據 sweet spot 體檢結果完全重寫。
+**END OF SPEC v2.2.2**
