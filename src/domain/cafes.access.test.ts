@@ -44,12 +44,17 @@ describe('review and verification validation', () => {
   it('rejects impossible verification wifi', () => expect(validateVerificationInput({ wifiMbps: -2, quietScore: 4, outletRate: 75, friendliness: 5, photoName: 'seat.jpg' })).toContain('WiFi 速度不可為負數'));
 });
 
-describe('free access and unlocks', () => {
-  it('allows the first three cafes in a city for free', () => expect(canAccessCafe(2, null, new Date('2026-07-19'))).toBe(true));
-  it('locks the fourth cafe without an unlock', () => expect(canAccessCafe(3, null, new Date('2026-07-19'))).toBe(false));
-  it('accepts an unlock whose expiry is in the future', () => expect(isUnlockActive('2026-08-01T00:00:00.000Z', new Date('2026-07-19'))).toBe(true));
-  it('rejects an expired unlock', () => expect(isUnlockActive('2026-07-01T00:00:00.000Z', new Date('2026-07-19'))).toBe(false));
-  it('allows the fourth cafe with an active unlock', () => expect(canAccessCafe(3, '2026-08-01T00:00:00.000Z', new Date('2026-07-19'))).toBe(true));
+describe('open access (v3.0: no paywall)', () => {
+  it('allows everyone to access any cafe', () => {
+    expect(canAccessCafe(0, null, new Date('2026-07-19'))).toBe(true);
+    expect(canAccessCafe(3, null, new Date('2026-07-19'))).toBe(true);
+    expect(canAccessCafe(3, '2026-08-01T00:00:00.000Z', new Date('2026-07-19'))).toBe(true);
+  });
+
+  it('legacy unlock API still works for backward compatibility', () => {
+    expect(isUnlockActive('2026-08-01T00:00:00.000Z', new Date('2026-07-19'))).toBe(true);
+    expect(isUnlockActive('2026-07-01T00:00:00.000Z', new Date('2026-07-19'))).toBe(false);
+  });
 });
 
 describe('review aggregation', () => {

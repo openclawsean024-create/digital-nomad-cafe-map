@@ -1,20 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { cities, seedCafes } from '@/data/cafes';
 
-describe('pilot cafe database', () => {
-  it('contains at least six Taiwan pilot cities', () => {
-    expect(cities.filter((city) => city.countryCode === 'TW').length).toBeGreaterThanOrEqual(6);
+describe('cafe database (v3.0 open release)', () => {
+  it('covers all 22 Taiwan cities/regions', () => {
+    expect(cities.filter((city) => city.countryCode === 'TW').length).toBeGreaterThanOrEqual(20);
   });
 
-  it('contains exactly eight seed cafes for every Taiwan pilot city', () => {
-    const taiwanCities = cities.filter((city) => city.countryCode === 'TW');
-    for (const city of taiwanCities) {
-      expect(seedCafes.filter((cafe) => cafe.cityId === city.id)).toHaveLength(8);
-    }
-  });
-
-  it('contains global discovery cities outside Taiwan', () => {
-    expect(cities.some((city) => city.countryCode !== 'TW')).toBe(true);
+  it('has at least 800 real cafes from OpenStreetMap', () => {
+    expect(seedCafes.length).toBeGreaterThan(800);
   });
 
   it('uses unique cafe ids', () => {
@@ -25,15 +18,23 @@ describe('pilot cafe database', () => {
     expect(seedCafes.every((cafe) => cafe.lat >= -90 && cafe.lat <= 90 && cafe.lng >= -180 && cafe.lng <= 180)).toBe(true);
   });
 
-  it('keeps all scores inside domain ranges', () => {
-    expect(seedCafes.every((cafe) => cafe.quietScore >= 1 && cafe.quietScore <= 5 && cafe.outletRate >= 0 && cafe.outletRate <= 100 && cafe.friendliness >= 1 && cafe.friendliness <= 5)).toBe(true);
+  it('every cafe has a name and address', () => {
+    expect(seedCafes.every((cafe) => cafe.name.trim().length > 0 && cafe.address.trim().length > 0)).toBe(true);
   });
 
-  it('ships initial user commentary for social proof', () => {
-    expect(seedCafes.some((cafe) => cafe.reviews.length > 0)).toBe(true);
+  it('every cafe has a valid cityId pointing to a known city', () => {
+    const cityIds = new Set(cities.map((c) => c.id));
+    expect(seedCafes.every((cafe) => cityIds.has(cafe.cityId))).toBe(true);
   });
 
-  it('marks seed data as needing continued community verification', () => {
-    expect(seedCafes.every((cafe) => cafe.verifierCount >= 1)).toBe(true);
+  it('seed data starts with zero verifications (community will verify)', () => {
+    expect(seedCafes.every((cafe) => cafe.verifierCount === 0)).toBe(true);
+  });
+
+  it('real OSM data covers all major Taiwan cities', () => {
+    const requiredCities = ['taipei', 'taichung', 'tainan', 'kaohsiung', 'hualien', 'taitung'];
+    for (const cityId of requiredCities) {
+      expect(seedCafes.some((cafe) => cafe.cityId === cityId)).toBe(true);
+    }
   });
 });

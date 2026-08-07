@@ -21,6 +21,8 @@ export interface Review {
   createdAt: string;
 }
 
+// 擴展 Cafe 欄位: 加上 phone/website/brand/hasWifi 等公開資訊
+// wifiMbps 等評分欄位可以是 0 (= 未知; 介面顯示「尚無評分」)
 export interface Cafe {
   id: string;
   name: string;
@@ -43,6 +45,11 @@ export interface Cafe {
   reviews: Review[];
   createdAt: string;
   lastVerifiedAt: string;
+  // 公開版擴展欄位
+  phone?: string | null;
+  website?: string | null;
+  brand?: string | null;
+  hasWifi?: boolean;
 }
 
 export type CafeInput = Omit<Cafe, 'id' | 'reviews' | 'createdAt' | 'lastVerifiedAt' | 'verifierCount' | 'status'>;
