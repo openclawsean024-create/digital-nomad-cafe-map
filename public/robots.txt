@@ -1,4 +1,3 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://digital-nomad-cafe-map.vercel.app/sitemap.xml
+Sitemap: https://openclawsean024-create.github.io/digital-nomad-cafe-map/sitemap.xml

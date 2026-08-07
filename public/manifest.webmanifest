@@ -1,0 +1,13 @@
+{
+  "name": "Cafework — 全台 994 間咖啡廳工作訊號地圖",
+  "short_name": "Cafework",
+  "description": "用 WiFi、插座與安靜度訊號找到真正能工作的咖啡廳。",
+  "start_url": "/digital-nomad-cafe-map/",
+  "scope": "/digital-nomad-cafe-map/",
+  "display": "standalone",
+  "background_color": "#f4f1e8",
+  "theme_color": "#171814",
+  "icons": [
+    { "src": "/digital-nomad-cafe-map/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}
