@@ -222,54 +222,53 @@ export default function CafeExplorer() {
 
       {selected && modal === null && (
         <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedId(null); }}>
-          <article className="modal" role="dialog" aria-modal="true" aria-labelledby="cafe-title">
-            <div className="modal-head">
+          <article className="modal" role="dialog" aria-modal="true" aria-labelledby="cafe-title" style={{ position: 'relative', zIndex: 1 }}>
+            <div className="modal-head" style={{ position: 'sticky', top: 0, zIndex: 2 }}>
               <span className="section-kicker">咖啡廳詳情</span>
               <button className="icon-button" onClick={() => setSelectedId(null)} aria-label="關閉">×</button>
             </div>
-            <div className="modal-body">
-              <div className="detail-hero">
+            <div className="modal-body" style={{ display: 'block' }}>
+              <div className="detail-hero" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '20px' }}>
                 <div>
-                  <h2 id="cafe-title">{selected.name}</h2>
-                  <p>📍 {selected.address}</p>
+                  <h2 id="cafe-title" style={{ fontSize: 'clamp(22px, 4vw, 36px)', margin: '0 0 8px' }}>{selected.name}</h2>
+                  <p style={{ margin: '4px 0' }}>📍 {selected.address}</p>
                   {((selected as Cafe & { phone?: string | null }).phone) && (
-                    <p>📞 {(selected as Cafe & { phone?: string | null }).phone}</p>
+                    <p style={{ margin: '4px 0' }}>📞 {(selected as Cafe & { phone?: string | null }).phone}</p>
                   )}
                   {((selected as Cafe & { website?: string | null }).website) && (
-                    <p>🌐 <a href={(selected as Cafe & { website?: string | null }).website!} target="_blank" rel="noopener noreferrer">官方網站</a></p>
+                    <p style={{ margin: '4px 0' }}>🌐 <a href={(selected as Cafe & { website?: string | null }).website!} target="_blank" rel="noopener noreferrer">官方網站</a></p>
                   )}
-                  <p style={{ marginTop: '0.5rem' }}>
+                  <p style={{ marginTop: '8px' }}>
                     <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selected.name + ' ' + selected.address)}`} target="_blank" rel="noopener noreferrer">在 Google Maps 開啟 →</a>
                   </p>
-                  <div className="tag-row">{selected.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div>
+                  <div className="tag-row" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px' }}>{selected.tags.map((tag) => <span className="tag" key={tag} style={{ padding: '4px 7px', background: 'var(--paper-2)', borderRadius: '4px', fontSize: '9px' }}>{tag}</span>)}</div>
                 </div>
-                <span className="score">{calculateWorkScore(selected) === 0 ? '—' : calculateWorkScore(selected)}</span>
+                <span className="score" style={{ minWidth: '48px', height: '48px', display: 'grid', placeItems: 'center', border: '1px solid var(--ink)', borderRadius: '50%', background: 'var(--green)', fontSize: '14px', fontWeight: 700 }}>{calculateWorkScore(selected) === 0 ? '—' : calculateWorkScore(selected)}</span>
               </div>
-              <div className="detail-grid">
-                <div className="detail-metric"><span>WIFI</span><strong>{displayScore(selected.wifiMbps, ' Mbps')}</strong></div>
-                <div className="detail-metric"><span>QUIET</span><strong>{selected.quietScore === 0 ? '—' : selected.quietScore.toFixed(1)}</strong></div>
-                <div className="detail-metric"><span>OUTLETS</span><strong>{displayScore(selected.outletRate, '%')}</strong></div>
-                <div className="detail-metric"><span>PRICE</span><strong>{selected.priceMedian === 0 ? '—' : `NT$${selected.priceMedian}`}</strong></div>
-                <div className="detail-metric"><span>FRIENDLY</span><strong>{selected.friendliness === 0 ? '—' : selected.friendliness.toFixed(1)}</strong></div>
-                <div className="detail-metric"><span>OSM 標籤</span><strong>{selected.verifierCount} 驗證</strong></div>
+              <div className="detail-grid" style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(110px, 1fr))', gap: '8px' }}>
+                <div className="detail-metric" style={{ padding: '10px 12px', border: '1px solid var(--line)', borderRadius: '6px' }}><span style={{ display: 'block', fontSize: '9px', color: 'var(--muted)' }}>WIFI</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '13px', fontWeight: 600 }}>{displayScore(selected.wifiMbps, ' Mbps')}</strong></div>
+                <div className="detail-metric" style={{ padding: '10px 12px', border: '1px solid var(--line)', borderRadius: '6px' }}><span style={{ display: 'block', fontSize: '9px', color: 'var(--muted)' }}>安靜</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '13px', fontWeight: 600 }}>{selected.quietScore === 0 ? '—' : selected.quietScore.toFixed(1)}</strong></div>
+                <div className="detail-metric" style={{ padding: '10px 12px', border: '1px solid var(--line)', borderRadius: '6px' }}><span style={{ display: 'block', fontSize: '9px', color: 'var(--muted)' }}>插座</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '13px', fontWeight: 600 }}>{displayScore(selected.outletRate, '%')}</strong></div>
+                <div className="detail-metric" style={{ padding: '10px 12px', border: '1px solid var(--line)', borderRadius: '6px' }}><span style={{ display: 'block', fontSize: '9px', color: 'var(--muted)' }}>價格</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '13px', fontWeight: 600 }}>{selected.priceMedian === 0 ? '—' : `NT$${selected.priceMedian}`}</strong></div>
+                <div className="detail-metric" style={{ padding: '10px 12px', border: '1px solid var(--line)', borderRadius: '6px' }}><span style={{ display: 'block', fontSize: '9px', color: 'var(--muted)' }}>友善</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '13px', fontWeight: 600 }}>{selected.friendliness === 0 ? '—' : selected.friendliness.toFixed(1)}</strong></div>
+                <div className="detail-metric" style={{ padding: '10px 12px', border: '1px solid var(--line)', borderRadius: '6px' }}><span style={{ display: 'block', fontSize: '9px', color: 'var(--muted)' }}>驗證</span><strong style={{ display: 'block', marginTop: '4px', fontSize: '13px', fontWeight: 600 }}>{selected.verifierCount} 人</strong></div>
               </div>
-              <p className="data-note">🕐 營業時間：{selected.hours || '請見店家公告或現場確認'}</p>
-              <div className="form-actions">
-                <button className="button" onClick={() => setModal('verify')}>我在這裡 · 驗證評分</button>
+              <p style={{ marginTop: '16px', fontSize: '13px', color: 'var(--muted)' }}>🕐 營業時間:{selected.hours || '請見店家公告'}</p>
+              <div style={{ marginTop: '14px' }}>
+                <button className="button" onClick={() => setModal('verify')} style={{ padding: '10px 14px', border: '1px solid var(--ink)', borderRadius: '6px', background: 'var(--white)', cursor: 'pointer' }}>📍 我在這裡 · 驗證評分</button>
               </div>
-              <h3>到店評論 ({selected.reviews.length})</h3>
-              {notice && <div className="notice">{notice}</div>}
-              {selected.reviews.length === 0 ? <p className="data-note">尚無評論。成為第一位分享工作經驗的人 ↓</p> :
-                selected.reviews.map((review) => <div className="review" key={review.id}><div className="review-head"><strong>{review.author} · {review.rating}/5</strong><span>{review.visitedAt}</span></div><p>{review.comment}</p></div>)}
-              <form onSubmit={handleReview}>
-                <div className="form-grid">
-                  <div className="field"><label htmlFor="author">顯示名稱</label><input id="author" name="author" /></div>
-                  <div className="field"><label htmlFor="rating">整體評分</label><select id="rating" name="rating" defaultValue="5"><option value="5">5 / 很適合</option><option value="4">4 / 推薦</option><option value="3">3 / 普通</option><option value="2">2 / 不方便</option><option value="1">1 / 不適合</option></select></div>
-                  <div className="field"><label htmlFor="visitedAt">到訪日期</label><input id="visitedAt" name="visitedAt" type="date" defaultValue={new Date().toISOString().slice(0, 10)} /></div>
-                  <div className="field full"><label htmlFor="comment">工作情境評論</label><textarea id="comment" name="comment" placeholder="例如：下午插座充足，Zoom 通話不會吵到別人…" /></div>
+              <h3 style={{ marginTop: '20px', fontSize: '15px' }}>到店評論 ({selected.reviews.length})</h3>
+              {notice && <div className="notice" style={{ margin: '12px 0', padding: '12px', border: '1px solid var(--green-dark)', background: 'rgba(183,239,90,.2)', borderRadius: '6px', fontSize: '12px' }}>{notice}</div>}
+              {selected.reviews.length === 0 ? <p style={{ fontSize: '13px', color: 'var(--muted)' }}>尚無評論。成為第一位分享工作經驗的人 ↓</p> :
+                selected.reviews.map((review) => <div key={review.id} style={{ padding: '12px 0', borderTop: '1px solid var(--line)' }}><div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}><strong>{review.author} · {review.rating}/5</strong><span>{review.visitedAt}</span></div><p style={{ margin: '6px 0 0', color: 'var(--muted)', fontSize: '13px' }}>{review.comment}</p></div>)}
+              <form onSubmit={handleReview} style={{ marginTop: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div><label style={{ display: 'block', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>顯示名稱</label><input name="author" style={{ width: '100%', minHeight: '38px', padding: '8px', border: '1px solid var(--ink)', borderRadius: '6px' }} /></div>
+                  <div><label style={{ display: 'block', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>整體評分</label><select name="rating" defaultValue="5" style={{ width: '100%', minHeight: '38px', padding: '8px', border: '1px solid var(--ink)', borderRadius: '6px' }}><option value="5">5 / 很適合</option><option value="4">4 / 推薦</option><option value="3">3 / 普通</option><option value="2">2 / 不方便</option><option value="1">1 / 不適合</option></select></div>
+                  <div style={{ gridColumn: '1 / -1' }}><label style={{ display: 'block', fontSize: '11px', fontWeight: 700, marginBottom: '4px' }}>工作情境評論</label><textarea name="comment" placeholder="例如：下午插座充足，Zoom 通話不會吵到別人…" style={{ width: '100%', minHeight: '80px', padding: '8px', border: '1px solid var(--ink)', borderRadius: '6px', resize: 'vertical' }} /></div>
                 </div>
-                {errors.length > 0 && <p className="form-errors">{errors.join(' · ')}</p>}
-                <div className="form-actions"><button className="button primary" type="submit">送出評論</button></div>
+                {errors.length > 0 && <p style={{ margin: '0 0 12px', padding: '10px', border: '1px solid var(--danger)', color: 'var(--danger)', fontSize: '12px' }}>{errors.join(' · ')}</p>}
+                <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'flex-end' }}><button className="button primary" type="submit" style={{ padding: '10px 14px', border: '1px solid var(--ink)', borderRadius: '6px', background: 'var(--green)', cursor: 'pointer', fontWeight: 700 }}>送出評論</button></div>
               </form>
             </div>
           </article>
