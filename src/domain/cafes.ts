@@ -12,17 +12,25 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
 
 /**
  * 計算工作分數
- * wifi 30% + 安靜 30% + 插座 20% + 價格 10% + 友善 10% = 100%
- * 評分欄位為 0 (=「未知」), 該維度取得 0 分但 weight 仍佔 (該維度給 0 分)
- * 完全沒評分 = 0 分; 完全滿分 = 100 分
+ * wifi 30% + 安靜 30% + 插座 20% + 價格 10% + 友善度 10% = 100%
+ *
+ * 規則:
+ * - 4 個主要維度 (wifi/quiet/outlets/friendliness) 為 0 = 「未知」, 該維度貢獻 0
+ * - priceMedian 為 0 = 「無價格資訊」, **不算入** (避免「全 0 但 10 分」的 bug)
+ * - 全部 5 個維度都未知 = 完全沒評分, 回傳 0 (UI 顯示「—」)
+ * - 至少 1 個維度已知 = 用固定權重算 (符合 SPEC §1.4)
+ *
+ * 例如 wifi=80 其它未知 = 80/100 * 30 = 24 分 (不是 80)
  */
 export function calculateWorkScore(cafe: Cafe): number {
-  const wifi = clamp(cafe.wifiMbps / 100, 0, 1) * 30;
-  const quiet = clamp(cafe.quietScore / 5, 0, 1) * 30;
-  const outlets = clamp(cafe.outletRate / 100, 0, 1) * 20;
-  const price = (1 - clamp((cafe.priceMedian - 80) / 320, 0, 1)) * 10;
-  const friendliness = clamp(cafe.friendliness / 5, 0, 1) * 10;
-  return Math.round(wifi + quiet + outlets + price + friendliness);
+  let total = 0;
+  if (cafe.wifiMbps > 0) total += clamp(cafe.wifiMbps / 100, 0, 1) * 30;
+  if (cafe.quietScore > 0) total += clamp(cafe.quietScore / 5, 0, 1) * 30;
+  if (cafe.outletRate > 0) total += clamp(cafe.outletRate / 100, 0, 1) * 20;
+  // priceMedian 為 0 = 無價格資訊, 跳過
+  if (cafe.priceMedian > 0) total += (1 - clamp((cafe.priceMedian - 80) / 320, 0, 1)) * 10;
+  if (cafe.friendliness > 0) total += clamp(cafe.friendliness / 5, 0, 1) * 10;
+  return Math.round(total);
 }
 
 export function aggregateReviews(reviews: Review[]): { count: number; average: number } {
