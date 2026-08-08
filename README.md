@@ -1,12 +1,12 @@
-# Cafework — 全台 994 間遠距工作咖啡廳地圖
+# Cafework — 全台 4357 間遠距工作咖啡廳地圖
 
 > **v3.0 開放版** — 從 SPEC v3.0 的「會員制」pilot 升級為「**全免費、免登入、公開資料**」版本。
-> 資料來源:OpenStreetMap 社群貢獻 (994 間咖啡廳,涵蓋 22 個縣市)。
+> 資料來源:OpenStreetMap 社群貢獻 (4357 間咖啡廳,涵蓋 22 個縣市)。
 
 ## ✨ 特色
 
 - 🔓 **完全開放** — 所有咖啡廳免費查看,免登入、免會員制
-- 🌏 **全台 994 間** — 涵蓋 22 個縣市,從台北 263 間到離島 1-5 間
+- 🌏 **全台 4357 間** — 涵蓋 22 個縣市,從台北 1570 間到離島 11-13 間
 - 📊 **5 維評分** — WiFi、插座、安靜度、價格、友善度由社群驗證累積
 - 🗺️ **互動地圖** — Leaflet + OpenStreetMap,免費 + 無 API key
 - 📱 **響應式設計** — 桌面、平板、手機皆可
@@ -31,7 +31,7 @@ npm run dev
 
 ## 📦 資料來源
 
-從 [OpenStreetMap Overpass API](https://overpass-api.de/) 抓取全台 `amenity=cafe` 資料,經過清洗後保留 **994 間**真正咖啡廳(已過濾手搖飲品牌如 50嵐、清心福全、可不可等)。
+從 [OpenStreetMap Overpass API](https://overpass-api.de/) 抓取全台 `amenity=cafe` 資料,經過清洗後保留 **4357 間**真正咖啡廳(已過濾手搖飲品牌如 50嵐、清心福全、可不可等)。
 
 更新資料:
 ```bash
@@ -90,7 +90,7 @@ src/
 │   ├── CafeExplorer.tsx  # 主 UI
 │   └── MapView.tsx       # Leaflet 地圖
 ├── data/
-│   ├── cafes-data.ts     # 994 間 OSM 咖啡廳
+│   ├── cafes-data.ts     # 4357 間 OSM 咖啡廳
 │   └── cafes.ts          # 從 cafes-data 載入
 ├── domain/
 │   ├── cafes.ts          # 商業邏輯 (filter/sort/calculateWorkScore)

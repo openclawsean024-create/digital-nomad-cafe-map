@@ -6,8 +6,8 @@ describe('cafe database (v3.0 open release)', () => {
     expect(cities.filter((city) => city.countryCode === 'TW').length).toBeGreaterThanOrEqual(20);
   });
 
-  it('has at least 800 real cafes from OpenStreetMap', () => {
-    expect(seedCafes.length).toBeGreaterThan(800);
+  it('has at least 4000 real cafes from OpenStreetMap', () => {
+    expect(seedCafes.length).toBeGreaterThan(4000);
   });
 
   it('uses unique cafe ids', () => {
@@ -36,5 +36,10 @@ describe('cafe database (v3.0 open release)', () => {
     for (const cityId of requiredCities) {
       expect(seedCafes.some((cafe) => cafe.cityId === cityId)).toBe(true);
     }
+  });
+
+  it('includes independent cafes (not just chains)', () => {
+    const independent = seedCafes.filter((c) => !c.brand);
+    expect(independent.length).toBeGreaterThan(2000);
   });
 });

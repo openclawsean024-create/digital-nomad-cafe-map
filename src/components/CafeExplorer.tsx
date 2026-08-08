@@ -157,7 +157,7 @@ export default function CafeExplorer() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand"><div className="brand-mark">CW</div><div><strong>Cafework</strong><span>全台 994 間咖啡廳工作訊號地圖</span></div></div>
+        <div className="brand"><div className="brand-mark">CW</div><div><strong>Cafework</strong><span>全台 4357 間咖啡廳工作訊號地圖</span></div></div>
         <label className="global-search"><input aria-label="搜尋店名或地址" value={filters.query} onChange={(event) => setFilter('query', event.target.value)} placeholder="搜尋店名、地址、區域" /></label>
         <div className="top-actions">
           <button className="button ghost" onClick={() => setModal('admin')}>營運台</button>
