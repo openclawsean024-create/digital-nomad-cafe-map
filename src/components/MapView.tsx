@@ -2,7 +2,7 @@
 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
 import type { Cafe, City } from '@/domain/types';
 import { calculateWorkScore } from '@/domain/cafes';
 
@@ -15,7 +15,7 @@ interface MapViewProps {
 
 const markerIcon = (score: number, active: boolean) => L.divIcon({
   className: '',
-  html: `<span class="leaflet-score-marker${active ? ' leaflet-score-marker-active' : ''}">${score}</span>`,
+  html: `<span class="leaflet-score-marker${active ? ' leaflet-score-marker-active' : ''}">${score === 0 ? '—' : score}</span>`,
   iconSize: [42, 42],
   iconAnchor: [21, 42],
   popupAnchor: [0, -42],
@@ -42,13 +42,7 @@ export default function MapView({ cafes, selectedId, selectedCity, onSelect }: M
           position={[cafe.lat, cafe.lng]}
           icon={markerIcon(calculateWorkScore(cafe), cafe.id === selectedId)}
           eventHandlers={{ click: () => onSelect(cafe) }}
-        >
-          <Popup>
-            <strong>{cafe.name}</strong><br />
-            WiFi {cafe.wifiMbps} Mbps · 安靜 {cafe.quietScore.toFixed(1)}<br />
-            插座 {cafe.outletRate}% · {cafe.verifierCount} 人驗證
-          </Popup>
-        </Marker>
+        />
       ))}
     </MapContainer>
   );

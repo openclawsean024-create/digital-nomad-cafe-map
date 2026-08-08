@@ -193,7 +193,7 @@ export default function CafeExplorer() {
 
         <section className="map-panel" aria-label="咖啡廳地圖">
           <MapView cafes={filtered} selectedId={selectedId} selectedCity={selectedCity} onSelect={selectCafe} />
-          <div className="map-caption"><strong>{selectedCity ? `${selectedCity.name} 工作訊號` : '全台工作訊號'}</strong><span>Marker 數字為 5 維加權工作分數；無評分 = 50 中性分數</span></div>
+          <div className="map-caption"><strong>{selectedCity ? `${selectedCity.name} 工作訊號` : '全台工作訊號'}</strong><span>Marker 數字為 5 維加權工作分數；無評分顯示「—」(歡迎到店驗證)</span></div>
           <div className="map-legend"><span className="legend-pill">WiFi 30%</span><span className="legend-pill">安靜 30%</span><span className="legend-pill">插座 20%</span></div>
         </section>
 
