@@ -222,12 +222,12 @@ export default function CafeExplorer() {
 
       {selected && modal === null && (
         <div className="modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedId(null); }}>
-          <article className="modal" role="dialog" aria-modal="true" aria-labelledby="cafe-title" style={{ position: 'relative', zIndex: 1 }}>
-            <div className="modal-head" style={{ position: 'sticky', top: 0, zIndex: 2 }}>
+          <article className="modal" role="dialog" aria-modal="true" aria-labelledby="cafe-title">
+            <div className="modal-head">
               <span className="section-kicker">咖啡廳詳情</span>
               <button className="icon-button" onClick={() => setSelectedId(null)} aria-label="關閉">×</button>
             </div>
-            <div className="modal-body" style={{ display: 'block' }}>
+            <div className="modal-body">
               <div className="detail-hero" style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '20px' }}>
                 <div>
                   <h2 id="cafe-title" style={{ fontSize: 'clamp(22px, 4vw, 36px)', margin: '0 0 8px' }}>{selected.name}</h2>

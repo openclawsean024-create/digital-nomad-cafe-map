@@ -15,7 +15,7 @@ interface MapViewProps {
 
 const markerIcon = (score: number, active: boolean) => L.divIcon({
   className: '',
-  html: `<span class="leaflet-score-marker${active ? ' leaflet-score-marker-active' : ''}">${score === 0 ? '—' : score}</span>`,
+  html: `<span class="leaflet-score-marker${score === 0 ? ' leaflet-score-marker-unverified' : ''}${active ? ' leaflet-score-marker-active' : ''}">${score === 0 ? '?' : score}</span>`,
   iconSize: [42, 42],
   iconAnchor: [21, 42],
   popupAnchor: [0, -42],
