@@ -21,9 +21,11 @@ import type { Cafe, CafeFilters, CafeInput, ReviewInput, VerificationInput } fro
 import {
   loadCityReminders,
   loadContributedCafes,
+  loadUnlockUntil,
   saveCityReminders,
   saveContributedCafes,
 } from '@/lib/storage';
+import PaywallGate from '@/components/PaywallGate';
 
 const MapView = dynamic(() => import('@/components/MapView'), { ssr: false });
 type Modal = 'add' | 'admin' | 'verify' | null;
@@ -49,10 +51,13 @@ export default function CafeExplorer() {
   const [errors, setErrors] = useState<string[]>([]);
   const [notice, setNotice] = useState('');
   const [reminders, setReminders] = useState<string[]>([]);
+  const [viewedCount, setViewedCount] = useState(0);
+  const [unlockUntil, setUnlockUntil] = useState<string | null>(null);
 
   useEffect(() => {
     setCafes(mergeCafeCollections(seedCafes, loadContributedCafes()));
     setReminders(loadCityReminders());
+    setUnlockUntil(loadUnlockUntil());
   }, []);
 
   const filtered = useMemo(() => filterAndSortCafes(cafes, filters), [cafes, filters]);
@@ -66,6 +71,7 @@ export default function CafeExplorer() {
 
   const selectCafe = (cafe: Cafe) => {
     setSelectedId(cafe.id);
+    setViewedCount((count) => count + 1);
     if (window.innerWidth < 821) setMobileView('list');
   };
 
@@ -174,21 +180,23 @@ export default function CafeExplorer() {
 
       <main className="workspace" data-mobile-view={mobileView}>
         <aside className="filters">
-          <p className="section-kicker">01 / 工作條件</p>
-          <div className="filter-group">
-            <label htmlFor="city">縣市</label>
-            <select id="city" value={filters.cityId} onChange={(event) => setFilter('cityId', event.target.value)}>
-              <option value="all">全台咖啡廳</option>
-              {cities.map((city) => <option value={city.id} key={city.id}>{city.name}</option>)}
-            </select>
-          </div>
-          <div className="filter-group"><label htmlFor="wifi">最低 WiFi <output>{filters.minWifi} Mbps</output></label><input id="wifi" type="range" min="0" max="150" step="10" value={filters.minWifi} onChange={(event) => setFilter('minWifi', Number(event.target.value))} /><div className="filter-ticks"><span>不限</span><span>150+</span></div></div>
-          <div className="filter-group"><label htmlFor="quiet">最低安靜度 <output>{filters.minQuiet.toFixed(1)} / 5</output></label><input id="quiet" type="range" min="0" max="5" step="0.5" value={filters.minQuiet} onChange={(event) => setFilter('minQuiet', Number(event.target.value))} /><div className="filter-ticks"><span>熱鬧</span><span>深度工作</span></div></div>
-          <div className="filter-group"><label htmlFor="outlets">最低插座率 <output>{filters.minOutlets}%</output></label><input id="outlets" type="range" min="0" max="100" step="10" value={filters.minOutlets} onChange={(event) => setFilter('minOutlets', Number(event.target.value))} /><div className="filter-ticks"><span>不限</span><span>每桌都有</span></div></div>
-          <div className="filter-group"><label htmlFor="sort">排序</label><select id="sort" value={filters.sortBy} onChange={(event) => setFilter('sortBy', event.target.value as CafeFilters['sortBy'])}><option value="workScore">適合工作分數</option><option value="wifi">WiFi 速度</option><option value="verified">驗證人數</option></select></div>
-          <p className="section-kicker">02 / 追蹤城市</p>
-          {(filters.cityId === 'all' ? cities.slice(0, 4) : cities.filter((city) => city.id === filters.cityId)).map((city) => <button key={city.id} className={`reminder-chip ${reminders.includes(city.id) ? 'active' : ''}`} onClick={() => toggleReminder(city.id)}>{reminders.includes(city.id) ? '✓ 已追蹤' : '+ 追蹤'} {city.name}</button>)}
-          <div className="data-note">📊 開放版：所有咖啡廳資訊免費查詢。資料來源：OpenStreetMap 社群貢獻。5 維評分由使用者驗證累積，店家尚無評分時顯示「—」。</div>
+          <PaywallGate viewedCount={viewedCount} unlockUntil={unlockUntil}>
+            <p className="section-kicker">01 / 工作條件</p>
+            <div className="filter-group">
+              <label htmlFor="city">縣市</label>
+              <select id="city" value={filters.cityId} onChange={(event) => setFilter('cityId', event.target.value)}>
+                <option value="all">全台咖啡廳</option>
+                {cities.map((city) => <option value={city.id} key={city.id}>{city.name}</option>)}
+              </select>
+            </div>
+            <div className="filter-group"><label htmlFor="wifi">最低 WiFi <output>{filters.minWifi} Mbps</output></label><input id="wifi" type="range" min="0" max="150" step="10" value={filters.minWifi} onChange={(event) => setFilter('minWifi', Number(event.target.value))} /><div className="filter-ticks"><span>不限</span><span>150+</span></div></div>
+            <div className="filter-group"><label htmlFor="quiet">最低安靜度 <output>{filters.minQuiet.toFixed(1)} / 5</output></label><input id="quiet" type="range" min="0" max="5" step="0.5" value={filters.minQuiet} onChange={(event) => setFilter('minQuiet', Number(event.target.value))} /><div className="filter-ticks"><span>熱鬧</span><span>深度工作</span></div></div>
+            <div className="filter-group"><label htmlFor="outlets">最低插座率 <output>{filters.minOutlets}%</output></label><input id="outlets" type="range" min="0" max="100" step="10" value={filters.minOutlets} onChange={(event) => setFilter('minOutlets', Number(event.target.value))} /><div className="filter-ticks"><span>不限</span><span>每桌都有</span></div></div>
+            <div className="filter-group"><label htmlFor="sort">排序</label><select id="sort" value={filters.sortBy} onChange={(event) => setFilter('sortBy', event.target.value as CafeFilters['sortBy'])}><option value="workScore">適合工作分數</option><option value="wifi">WiFi 速度</option><option value="verified">驗證人數</option></select></div>
+            <p className="section-kicker">02 / 追蹤城市</p>
+            {(filters.cityId === 'all' ? cities.slice(0, 4) : cities.filter((city) => city.id === filters.cityId)).map((city) => <button key={city.id} className={`reminder-chip ${reminders.includes(city.id) ? 'active' : ''}`} onClick={() => toggleReminder(city.id)}>{reminders.includes(city.id) ? '✓ 已追蹤' : '+ 追蹤'} {city.name}</button>)}
+            <div className="data-note">📊 開放版：所有咖啡廳資訊免費查詢。資料來源：OpenStreetMap 社群貢獻。5 維評分由使用者驗證累積，店家尚無評分時顯示「—」。</div>
+          </PaywallGate>
         </aside>
 
         <section className="map-panel" aria-label="咖啡廳地圖">

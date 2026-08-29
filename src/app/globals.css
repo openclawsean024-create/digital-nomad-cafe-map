@@ -271,3 +271,26 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media (max-width: 720px) {
   .admin-metric-grid { grid-template-columns: 1fr; }
 }
+
+/* --- Stage 5 / paywall gate (SPEC §15.13.5 demo paywall on /) --- */
+.paywall-gate { display: grid; gap: 12px; }
+.paywall-banner { display: grid; gap: 6px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); }
+.paywall-gate[data-state="unlocked"] .paywall-banner { border-color: var(--green-dark); background: rgba(183,239,90,.18); }
+.paywall-gate[data-state="daily-limit-exceeded"] .paywall-banner { border-color: var(--danger, #c33); background: rgba(204,51,51,.08); }
+.paywall-kicker { margin: 0; font: 600 10px 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.paywall-message { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink); }
+.paywall-message--unlocked { font-weight: 700; color: var(--green-dark); }
+.paywall-message--free { color: var(--ink); }
+.paywall-message--blocked { font-weight: 700; color: var(--danger, #c33); }
+.paywall-children { display: grid; gap: 16px; }
+
+.paywall-checkout { display: grid; gap: 10px; padding: 16px 18px; border: 2px dashed var(--green-dark); border-radius: 10px; background: rgba(183,239,90,.08); }
+.paywall-checkout-head { display: grid; gap: 4px; }
+.paywall-checkout-kicker { margin: 0; font: 600 10px 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--green-dark); }
+.paywall-checkout-title { margin: 0; font-size: 14px; line-height: 1.4; color: var(--ink); }
+.paywall-checkout-body { margin: 0; font-size: 12px; line-height: 1.55; color: var(--muted); }
+.paywall-checkout-body strong { color: var(--ink); font-weight: 700; }
+.paywall-checkout-button { padding: 10px 14px; border: 1px solid var(--ink); border-radius: 6px; background: var(--green); font-weight: 700; cursor: pointer; font-size: 13px; }
+.paywall-checkout-button:hover { background: var(--green-dark); color: var(--white); }
+.paywall-checkout-note { margin: 0; font-size: 11px; color: var(--muted); }
+.paywall-checkout-note code { padding: 1px 5px; border-radius: 3px; background: var(--paper-2); font: 600 11px 'IBM Plex Mono', monospace; }
