@@ -294,3 +294,43 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .paywall-checkout-button:hover { background: var(--green-dark); color: var(--white); }
 .paywall-checkout-note { margin: 0; font-size: 11px; color: var(--muted); }
 .paywall-checkout-note code { padding: 1px 5px; border-radius: 3px; background: var(--paper-2); font: 600 11px 'IBM Plex Mono', monospace; }
+
+/* --- Stage 5 /cron/reminder-dry-run (SPEC §15.13 founder-only city reminder cron dry-run) --- */
+.cron-shell { max-width: 920px; margin: 0 auto; padding: 32px 24px 64px; display: grid; gap: 24px; }
+.cron-shell .cron-header h1 { margin: 6px 0 12px; font-size: clamp(24px, 4vw, 34px); letter-spacing: -.03em; }
+.cron-shell .cron-meta { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.cron-shell .cron-meta code { padding: 1px 5px; border-radius: 3px; background: var(--paper-2); font: 600 12px 'IBM Plex Mono', monospace; }
+.cron-meta--warning { padding: 10px 14px; border: 1px dashed var(--green-dark); border-radius: 8px; background: rgba(183,239,90,.1); }
+.cron-controls { display: grid; gap: 14px; padding: 18px 20px; border: 1px solid var(--ink); border-radius: 10px; background: var(--white); }
+.cron-controls h2 { margin: 0; font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--green-dark); }
+.cron-fieldset { display: flex; flex-wrap: wrap; gap: 12px; padding: 10px 14px; border: 1px dashed var(--line); border-radius: 8px; background: var(--paper-2); }
+.cron-fieldset legend { font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 0 6px; }
+.cron-checkbox { display: inline-flex; gap: 6px; align-items: center; font-size: 13px; }
+.cron-field { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.cron-field input[type="text"], .cron-field select, .cron-field textarea { font: 600 12px 'IBM Plex Mono', monospace; padding: 6px 8px; border: 1px solid var(--line); border-radius: 4px; background: var(--white); color: var(--ink); width: 100%; box-sizing: border-box; }
+.cron-field textarea { resize: vertical; min-height: 64px; }
+.cron-refresh { padding: 10px 14px; border: 1px solid var(--ink); border-radius: 6px; background: var(--green); color: var(--ink); font-weight: 700; cursor: pointer; font-size: 13px; justify-self: start; }
+.cron-refresh:hover { background: var(--green-dark); color: var(--white); }
+.cron-summary { display: grid; gap: 8px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); }
+.cron-summary h2 { margin: 0; font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.cron-summary ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 13px; color: var(--ink); }
+.cron-summary code { padding: 1px 5px; border-radius: 3px; background: var(--white); font: 600 12px 'IBM Plex Mono', monospace; }
+.cron-output { display: grid; gap: 16px; padding: 20px 22px; border: 1px solid var(--ink); border-radius: 10px; background: var(--white); }
+.cron-output h2 { margin: 0; font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--green-dark); }
+.cron-empty { margin: 0; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 8px; background: var(--paper-2); color: var(--muted); font-size: 13px; }
+.cron-payload { display: grid; gap: 10px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--paper-2); }
+.cron-payload-head { display: grid; gap: 4px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.cron-payload-city { margin: 0; font-size: 14px; font-weight: 700; }
+.cron-payload-recipients, .cron-payload-count { margin: 0; font-size: 12px; color: var(--muted); }
+.cron-payload-recipients code, .cron-payload-count code { padding: 1px 5px; border-radius: 3px; background: var(--white); font: 600 12px 'IBM Plex Mono', monospace; }
+.cron-html-details { display: grid; gap: 6px; }
+.cron-html-details summary { cursor: pointer; font-size: 12px; color: var(--green-dark); font-weight: 700; }
+.cron-raw { display: grid; gap: 8px; padding: 18px 20px; border: 1px solid var(--ink); border-radius: 10px; background: var(--white); }
+.cron-raw h2 { margin: 0; font: 600 11px 'IBM Plex Mono', monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--green-dark); }
+.cron-raw textarea { font: 500 11px 'IBM Plex Mono', monospace; line-height: 1.5; padding: 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper-2); color: var(--ink); width: 100%; box-sizing: border-box; resize: vertical; }
+.cron-locked { padding: 32px 28px; border: 1px solid var(--ink); border-radius: 12px; background: var(--white); }
+.cron-locked h1 { margin: 6px 0 12px; font-size: clamp(24px, 4vw, 32px); letter-spacing: -.03em; }
+.cron-locked code { padding: 1px 6px; border-radius: 4px; background: var(--paper-2); font: 600 12px 'IBM Plex Mono', monospace; }
+.cron-locked-hint { margin: 12px 0 0; padding: 12px 14px; border: 1px dashed var(--green-dark); border-radius: 8px; background: rgba(183,239,90,.1); font-size: 13px; }
+.cron-nav { padding-top: 16px; border-top: 1px solid var(--line); display: flex; gap: 18px; flex-wrap: wrap; }
+.cron-nav a { color: var(--ink); font-weight: 700; text-decoration: underline; }
