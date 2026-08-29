@@ -243,3 +243,31 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .verify-locked-hint { margin: 12px 0 0; padding: 12px 14px; border: 1px dashed var(--green-dark); border-radius: 8px; background: rgba(183,239,90,.1); font-size: 13px; }
 .verify-nav { padding-top: 16px; border-top: 1px solid var(--line); display: flex; gap: 18px; }
 .verify-nav a { color: var(--ink); font-weight: 700; text-decoration: underline; }
+
+/* --- Stage 5 /admin (SPEC §15.13 founder-only pilot metrics dashboard) --- */
+.admin-shell { max-width: 880px; margin: 0 auto; padding: 32px 24px 64px; display: grid; gap: 28px; }
+.admin-shell .admin-header h1 { margin: 6px 0 12px; font-size: clamp(26px, 4vw, 38px); letter-spacing: -.04em; }
+.admin-shell .admin-meta { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.admin-dashboard { display: grid; gap: 24px; }
+.admin-header { display: grid; gap: 6px; }
+.admin-metric-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.admin-metric-card { display: grid; gap: 6px; padding: 18px; border: 1px solid var(--ink); border-radius: 10px; background: var(--white); }
+.admin-metric-label { margin: 0; font: 600 11px 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--green-dark); }
+.admin-metric-value { margin: 0; font: 700 22px 'IBM Plex Mono', monospace; color: var(--muted); letter-spacing: -.01em; }
+.admin-metric-description { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.admin-chart { display: grid; gap: 12px; padding: 20px; border: 1px solid var(--ink); border-radius: 10px; background: var(--white); }
+.admin-chart h2 { margin: 0; font-size: 14px; letter-spacing: .02em; text-transform: uppercase; color: var(--green-dark); font-family: 'IBM Plex Mono', monospace; }
+.admin-chart-note { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.admin-chart-canvas { margin-top: 6px; }
+.admin-footer { display: grid; gap: 4px; padding: 14px 16px; border: 1px dashed var(--line); border-radius: 8px; background: var(--paper-2); }
+.admin-footer-note { margin: 0; font-size: 12px; color: var(--muted); line-height: 1.5; }
+.admin-locked { padding: 32px 28px; border: 1px solid var(--ink); border-radius: 12px; background: var(--white); }
+.admin-locked h1 { margin: 6px 0 12px; font-size: clamp(24px, 4vw, 32px); letter-spacing: -.03em; }
+.admin-locked code { padding: 1px 6px; border-radius: 4px; background: var(--paper-2); font: 600 12px 'IBM Plex Mono', monospace; }
+.admin-locked-hint { margin: 12px 0 0; padding: 12px 14px; border: 1px dashed var(--green-dark); border-radius: 8px; background: rgba(183,239,90,.1); font-size: 13px; }
+.admin-nav { padding-top: 16px; border-top: 1px solid var(--line); display: flex; gap: 18px; flex-wrap: wrap; }
+.admin-nav a { color: var(--ink); font-weight: 700; text-decoration: underline; }
+
+@media (max-width: 720px) {
+  .admin-metric-grid { grid-template-columns: 1fr; }
+}
