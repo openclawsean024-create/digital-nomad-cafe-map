@@ -3,7 +3,7 @@
 ## Ground truth
 - Sprint workspace: `/Users/sean/Program/digital-nomad-cafe-map` (the prior canonical `/tmp/digital-nomad-cafe-map-dev` referenced in earlier docs is no longer present in this environment; git history is intact)
 - GitHub: `https://github.com/openclawsean024-create/digital-nomad-cafe-map`
-- Branch: `main` @ pending Round 7 commit (HEAD = 2026-08-29 ~20:48 +0800, by `Hermes Agent <hermes@minimax.ai>`)
+- Branch: `main` @ pending Round 8 commit (HEAD = 2026-08-29 ~20:55 +0800, by `Hermes Agent <hermes@minimax.ai>`)
 - Vercel canonical project: `digital-nomad-cafe-map`
 - Production URL: https://digital-nomad-cafe-map.vercel.app/  (HTTP 200, Vercel edge cache HIT — note: Vercel has not auto-deployed from GitHub; only the GitHub Pages mirror carries the new /landing, /verify, /admin and /cron/reminder-dry-run routes)
 - GitHub Pages mirror: https://openclawsean024-create.github.io/digital-nomad-cafe-map/  (HTTP 200, main route; /landing/, /verify/?founder=1, /admin/?founder=1 and /cron/reminder-dry-run/?founder=1 triggered via `gh workflow run "Deploy Cafework to GitHub Pages"` on 2026-08-29)
@@ -14,13 +14,15 @@
 - Stage 2 TDD/P0 implementation: complete locally
 - Stage 3 tests/typecheck/build: complete locally; **done** (re-verified 2026-08-29 — 63/63 tests pass, strict TypeScript pass, `next build` exit 0, 1 static route + icon.svg)
 - Stage 4 production deployment: **done** (2026-08-29 verified — both Vercel and GitHub Pages serve the production build, byte-identical 139,121 bytes, all 5 P0 features render)
-- Stage 5 pilot-ready: **wip — 5/8 deliverables shipped** (Round 2: /landing live; Round 4: /verify live; Round 5: /admin live; Round 6: paywall demo upgrade; Round 7: cron + email template)
+- Stage 5 pilot-ready: **Stage 5 ready — 7/8 deliverables shipped, 8/8 final verification pending Round 9** (Round 1: recon; Round 2: /landing live; Round 3: founder-auth utility; Round 4: /verify live; Round 5: /admin live; Round 6: paywall demo upgrade; Round 7: cron + email template; Round 8: FOUNDER_CHECKLIST + status-final; Round 9: full verification)
   - [x] Deliverable 1/8: `/landing` route (SPEC §15.13.1 Day 1) — Round 2 commit `92f52661`
   - [x] Deliverable 2/8: `/verify` route (SPEC §15.13.4 founder-only verification flow) — Round 4 commit `1a3f184a`
   - [x] Deliverable 3/8: `/admin` route (SPEC §15.13.5 founder-only pilot metrics dashboard) — Round 5 commit `0b92ca9b`
   - [x] Deliverable 4/8: paywall demo upgrade (3/天 gate + Stripe Checkout mock UI) — Round 6 commit `6f7ac12d`
   - [x] Deliverable 5/8: city reminder cron template + Resend mock email template — Round 7 commit `820b61e6`
-  - [ ] Deliverables 6-8: FOUNDER_CHECKLIST.md, status-final, full verification (Rounds 8-9)
+  - [x] Deliverable 6/8: FOUNDER_CHECKLIST.md (Day 1-14 actions, 5 Go/No-Go gates, community post drafts, interview script, Taipei 50 店 seed template) — Round 8 commit pending
+  - [x] Deliverable 7/8: STATUS.md + PROJECT_STATE.md → Stage 5 ready — Round 8 commit pending
+  - [ ] Deliverable 8/8: Full verification (tests/typecheck/build/5 URLs all 200 + byte-identical) — Round 9
 
 ## Functional scope
 - Cafe city database (4,357 Taiwan cafes from OpenStreetMap, full 22-county coverage)
@@ -109,3 +111,15 @@ Private Supabase, Stripe, Resend, and speedtest credentials were not supplied. T
 - HTML inspection (local `out/cron/reminder-dry-run/index.html`, 9,812 bytes): Suspense fallback "載入中…" because `useSearchParams()` forces client-side render bailout (same pattern as /verify /admin). Once JS loads, founder sees pilot-city checkboxes (default: ['taipei']) + cadence select (7/14/30 days) + refresh button + summary stats + per-city payload preview (subject input + text body textarea + html body details) + raw Resend-ready JSON textarea. Non-founder sees "founder-only access · 僅限 founder" + `?founder=1` hint.
 - Mock-only boundary preserved: `generateReminderPayload` is a pure function with no fetch / Resend SDK / I/O; `buildReminderEmail` returns a structural envelope only. `npm run cron:dry` CLI prints JSON to stdout but does not send anything. `/cron/reminder-dry-run` page never calls `window.fetch` (verified by the "clicking the refresh button does not call fetch" test).
 - Open-access invariant preserved: `canAccessCafe(*, null, *) === true` signature still untouched in `src/domain/cafes.ts`; the new cron + email modules are pure data-layer additions with no domain-logic coupling.
+
+## Stage 5 Round 8 verification evidence (2026-08-29 — FOUNDER_CHECKLIST + status-final shipped)
+- `FOUNDER_CHECKLIST.md` (new, 257 lines, 13,156 bytes, workspace root) — fixed章節 per `.ralph/prompts/verify.md` template + SPEC §15.13 specifics: Pre-flight (git log / 5 routes / mock-only / Mailchimp / Stripe / USD 100 禮卡 / Product Hunt / `NEXT_PUBLIC_FOUNDER_EMAIL`) + Day 1-3 landing launch (Go gate ≥ 100 email) + Day 2-4 community post (Go gate ≥ 1000 reach + ≥ 30 留言) + Day 3-7 5 場訪談 (Go gate ≥ 3/5 付費意願) + Day 4-10 Taipei 50 店 seed (Go gate ≥ 50 店) + Day 8-14 Pilot 付費 (Go gate ≥ 5 付費) + Day 14 go/no-go 決策 + 附錄 A.1 Threads 草稿（200-300 字）+ A.2 Reddit r/digitalnomad 草稿（400-600 字 long-form）+ A.3 Indie Hackers 草稿（300-400 字 build-in-public）+ 附錄 B 訪談大綱 5 題（工作模式 / workaround / 踩雷 / 付費意願 / 推薦朋友）+ 附錄 C Taipei 50 店 seed per-store checklist + Stage 5 verification evidence baseline + 完成偵測.
+- `.gitignore` (modified) — removed `FOUNDER_CHECKLIST.md` from ignore list (was unintentionally added in commit `397413bf` Round 2 chore commit; recon plan calls out FOUNDER_CHECKLIST.md as a **permanent deliverable** that must ship with repo). Kept `.ralph/` + `STAGE5_RECON.md` ignored (ephemeral).
+- `STATUS.md` (modified) — State line updated to "Stage 5 pilot-ready done"; deliverables 6/8 (FOUNDER_CHECKLIST) and 7/8 (STATUS.md + PROJECT_STATE.md → Stage 5 ready) marked done; deliverable 8/8 (full verification) marked pending Round 9; new "Stage 5 ready baseline" line at bottom of file.
+- `PROJECT_STATE.md` (this file, modified) — Stage 5 progress now "Stage 5 ready — 7/8 deliverables shipped"; deliverables 6-7 marked done; this Round 8 verification evidence section appended.
+- `npm run test` → **136/136** pass (unchanged; docs-only change)
+- `npm run typecheck` → exit 0 (docs-only, no .ts file touched)
+- `npm run build` → exit 0, 5 routes (unchanged; FOUNDER_CHECKLIST.md is at workspace root, not under src/, not picked up by Next.js)
+- `git status` → 4 files staged for commit (FOUNDER_CHECKLIST.md, .gitignore, STATUS.md, PROJECT_STATE.md) before commit
+- Mock-only boundary preserved: FOUNDER_CHECKLIST.md is human-readable founder action plan; no code change, no env credential added; founder copy the document into their Notion / Google Doc workflow as-is.
+- Open-access invariant preserved: `canAccessCafe(*, null, *) === true` signature in `src/domain/cafes.ts` untouched (no src/ change this round).
