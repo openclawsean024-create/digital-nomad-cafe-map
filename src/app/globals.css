@@ -175,3 +175,29 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
 }
+
+/* --- Stage 5 /landing (SPEC §15.13.1) --- */
+.landing-shell { max-width: 760px; margin: 0 auto; padding: 32px 24px 64px; display: grid; gap: 32px; }
+.landing-hero { padding: 16px 0 8px; border-bottom: 1px solid var(--ink); }
+.landing-headline { margin: 8px 0 12px; font-size: clamp(28px, 5vw, 44px); line-height: 1.1; letter-spacing: -.04em; font-weight: 800; }
+.landing-headline-sub { display: block; margin-top: 8px; font-size: clamp(16px, 2.6vw, 22px); color: var(--muted); font-weight: 500; letter-spacing: -.01em; }
+.landing-sub { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+.landing-five-dim h2, .landing-capture h2 { margin: 0 0 14px; font-size: 14px; letter-spacing: .02em; text-transform: uppercase; color: var(--green-dark); font-family: 'IBM Plex Mono', monospace; }
+.landing-five-dim ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.landing-five-dim li { padding: 14px 12px; border: 1px solid var(--ink); border-radius: 8px; background: var(--white); display: grid; gap: 4px; }
+.landing-five-dim li strong { font: 600 14px 'IBM Plex Mono', monospace; }
+.landing-five-dim li span { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.email-capture-form { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--ink); border-radius: 10px; background: var(--white); }
+.email-capture-label { display: grid; gap: 6px; font-size: 12px; font-weight: 700; }
+.email-capture-label input { width: 100%; min-height: 46px; padding: 9px 12px; border: 1px solid var(--ink); border-radius: 6px; background: var(--paper); font-size: 14px; }
+.email-capture-submit { min-height: 46px; font-size: 14px; }
+.email-capture-error { margin: 0; padding: 10px 12px; border: 1px solid var(--danger); border-radius: 6px; color: var(--danger); font-size: 12px; }
+.email-capture-note { margin: 0; font-size: 11px; color: var(--muted); }
+.landing-thanks { margin: 0; padding: 18px 20px; border: 1px solid var(--green-dark); border-radius: 10px; background: rgba(183,239,90,.18); font-size: 14px; line-height: 1.6; }
+.landing-nav { padding-top: 16px; border-top: 1px solid var(--line); }
+.landing-nav a { color: var(--ink); font-weight: 700; text-decoration: underline; }
+
+@media (max-width: 720px) {
+  .landing-shell { padding: 20px 16px 48px; gap: 24px; }
+  .landing-five-dim ul { grid-template-columns: repeat(2, 1fr); }
+}
