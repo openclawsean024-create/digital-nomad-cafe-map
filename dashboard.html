@@ -1,307 +1,406 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>digital-nomad-cafe — Project digital-nomad-cafe-map</title>
-<meta name="theme-color" content="#5EBFA1" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%235EBFA1'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white' font-weight='900' font-family='sans-serif'%3ED%3C/text%3E%3C/svg%3E" />
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-  theme: {
-    extend: {
-      colors: {
-        bg: '#FAFAF7',
-        card: '#FFFFFF',
-        mint: { 50: '#E6F4F0', 100: '#D2EBE4', 500: '#5EBFA1', 600: '#4DA68A', 700: '#3D8C73' },
-        ink: { 900: '#1A1A1A', 600: '#6B6B6B', 400: '#9A9A95' },
-        line: '#EAEAE5',
-        blue: '#4F8BFF',
-        warn: '#F59E0B',
-        danger: '#EF4444',
-      },
-      fontFamily: {
-        sans: ['"Noto Sans TC"', 'system-ui', '-apple-system', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-      },
-      borderRadius: { xl2: '16px' },
-    },
-  },
-};
-</script>
-<style>
-  body { font-family: 'Noto Sans TC', system-ui, sans-serif; background: #FAFAF7; color: #1A1A1A; }
-  .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; color: #6B6B6B; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-  .sidebar-item:hover { background: #F5F5F0; color: #1A1A1A; }
-  .sidebar-item.active { background: #E6F4F0; color: #1A1A1A; font-weight: 600; }
-  .card { background: #FFFFFF; border: 1px solid #EAEAE5; border-radius: 16px; padding: 20px; }
-  .kpi { display: flex; flex-direction: column; gap: 8px; }
-  .kpi .label { font-size: 12px; color: #6B6B6B; }
-  .kpi .value { font-size: 32px; font-weight: 700; line-height: 1.1; font-family: 'JetBrains Mono', monospace; }
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-  .badge-mint { background: #E6F4F0; color: #3D8C73; }
-  .badge-blue { background: #E5EFFF; color: #2563EB; }
-  .badge-warn { background: #FEF3C7; color: #B45309; }
-  .badge-danger { background: #FEE2E2; color: #B91C1C; }
-  .btn-primary { background: #5EBFA1; color: white; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-  .btn-primary:hover { background: #4DA68A; }
-  .progress { height: 6px; background: #F5F5F0; border-radius: 999px; overflow: hidden; }
-  .progress-bar { height: 100%; background: #5EBFA1; transition: width 0.3s; }
-  .quick-action { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 10px; cursor: pointer; transition: all 0.15s; }
-  .quick-action:hover { background: #F5F5F0; }
-  .quick-action .icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .timeline-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #F5F5F0; }
-  .timeline-item:last-child { border-bottom: none; }
-  .timeline-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
-  .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #EAEAE5; display: none; padding: 8px 0; z-index: 50; }
-  .mobile-nav button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 0; color: #6B6B6B; font-size: 10px; background: none; border: none; flex: 1; cursor: pointer; }
-  .mobile-nav button.active { color: #5EBFA1; font-weight: 600; }
-  @media (max-width: 768px) {
-    .desktop-sidebar { display: none; }
-    .mobile-nav { display: flex; }
-    .main-content { padding-bottom: 80px; }
-  }
-</style>
-</head>
-<body class="min-h-screen flex">
-  <!-- Sidebar -->
-  <aside class="desktop-sidebar w-[220px] bg-white border-r border-line h-screen sticky top-0 flex flex-col p-4 flex-shrink-0">
-    <div class="flex items-center gap-3 px-2 mb-8 mt-2">
-      <div class="w-10 h-10 rounded-xl bg-mint-500 flex items-center justify-center text-white font-black text-lg">D</div>
-      <div>
-        <div class="font-bold text-sm">digital-nomad-cafe</div>
-        <div class="text-xs text-ink-600">v1.0 · Default</div>
-      </div>
-    </div>
-    <nav class="flex-1 flex flex-col gap-1">
-      <a class="sidebar-item active" data-page="首頁"><span>🏠</span><span>首頁</span></a>
-        <a class="sidebar-item" data-page="儀表板"><span>📊</span><span>儀表板</span></a>
-        <a class="sidebar-item" data-page="任務清單"><span>📋</span><span>任務清單</span></a>
-        <a class="sidebar-item" data-page="報表分析"><span>📈</span><span>報表分析</span></a>
-        <a class="sidebar-item" data-page="客戶管理"><span>👥</span><span>客戶管理</span></a>
-        <a class="sidebar-item" data-page="設定"><span>⚙️</span><span>設定</span></a>
-        <a class="sidebar-item" data-page="說明中心"><span>❓</span><span>說明中心</span></a>
-        <a class="sidebar-item" data-page="登出"><span>🚪</span><span>登出</span></a>
-    </nav>
-    <div class="border-t border-line pt-3 mt-3 text-xs text-ink-600 px-2">
-      <div>v1.0.0</div>
-      <div class="mt-1">© 2026 OpenClaw</div>
-    </div>
-  </aside>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#172329">
+  <title>Cafework｜找到真的能工作的地方</title>
+  <style>
+    :root {
+      --ink: #172329;
+      --ink-soft: #5e6a6b;
+      --canvas: #f4f1ea;
+      --surface: #fffcf6;
+      --mist: #e5ece7;
+      --signal: #e4f37a;
+      --coral: #f28b6d;
+      --line: #d5dbd5;
+      --blue: #426b74;
+      --shadow: 0 18px 50px rgba(23, 35, 41, .10);
+      --radius: 18px;
+    }
 
-  <!-- Main Content -->
-  <main class="flex-1 main-content">
-    <!-- Header -->
-    <header class="bg-white border-b border-line px-8 py-6">
-      <div class="flex items-start justify-between">
-        <div>
-          <h1 class="text-2xl font-bold mb-1">早安，使用者</h1>
-          <div class="flex items-center gap-2 text-sm text-ink-600">
-            <span class="w-2 h-2 rounded-full bg-mint-500"></span>
-            <span>已登入 · 一般使用者</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-3">
-          <button class="px-3 py-2 rounded-lg border border-line text-sm hover:bg-bg transition" id="btn-notify">🔔</button>
-          <div class="w-9 h-9 rounded-full bg-mint-100 flex items-center justify-center font-bold text-mint-700">U</div>
-        </div>
+    * { box-sizing: border-box; }
+    html { background: var(--canvas); scroll-behavior: smooth; }
+    body { margin: 0; min-width: 320px; color: var(--ink); background: var(--canvas); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button { color: inherit; cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+    a { color: inherit; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    .hidden { display: none !important; }
+
+    .app { min-height: 100vh; }
+    .topbar { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 76px; padding: 14px clamp(18px, 4vw, 58px); background: rgba(244, 241, 234, .92); border-bottom: 1px solid var(--line); backdrop-filter: blur(18px); }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: max-content; text-decoration: none; }
+    .brand-mark { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 13px 13px 13px 4px; background: var(--ink); color: var(--signal); font-size: 12px; font-weight: 900; letter-spacing: -.08em; transform: rotate(-4deg); }
+    .brand-copy { display: grid; gap: 2px; }
+    .brand-copy strong { font-size: 17px; letter-spacing: -.04em; }
+    .brand-copy span { color: var(--ink-soft); font-size: 10px; letter-spacing: .08em; }
+    .nav { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .nav button { min-height: 42px; padding: 8px 12px; border: 0; border-radius: 10px; background: transparent; color: var(--ink-soft); font-size: 13px; }
+    .nav button:hover, .nav button.active { color: var(--ink); background: var(--surface); }
+    .top-actions { display: flex; gap: 8px; }
+    .button { min-height: 44px; padding: 10px 15px; border: 1px solid var(--ink); border-radius: 11px; background: var(--surface); font-weight: 750; transition: transform .16s ease, box-shadow .16s ease, background .16s ease; }
+    .button:hover { transform: translateY(-1px); box-shadow: 3px 4px 0 rgba(23, 35, 41, .15); }
+    .button.primary { background: var(--signal); }
+    .button.dark { background: var(--ink); color: var(--canvas); }
+    .button.small { min-height: 38px; padding: 7px 11px; font-size: 12px; }
+
+    .content { width: min(1440px, calc(100% - 36px)); margin: 0 auto; padding: 42px 0 64px; }
+    .hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, 350px); gap: 40px; align-items: end; padding: 18px 0 32px; }
+    .eyebrow, .label { margin: 0; color: var(--blue); font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 720px; margin: 10px 0 16px; font-family: Georgia, "Noto Serif TC", serif; font-size: clamp(38px, 5.7vw, 78px); font-weight: 500; letter-spacing: -.07em; line-height: .99; }
+    .hero-copy { max-width: 590px; color: var(--ink-soft); font-size: 15px; line-height: 1.8; }
+    .hero-note { padding: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: rgba(255, 252, 246, .72); }
+    .hero-note strong { display: block; margin: 5px 0 8px; font-family: Georgia, "Noto Serif TC", serif; font-size: 24px; font-weight: 500; letter-spacing: -.04em; }
+    .hero-note p { margin: 0; color: var(--ink-soft); font-size: 12px; line-height: 1.7; }
+
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; overflow: hidden; margin-bottom: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--line); }
+    .stat { min-height: 100px; padding: 18px 20px; background: var(--surface); }
+    .stat strong { display: block; margin: 8px 0 3px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 23px; letter-spacing: -.06em; }
+    .stat span:last-child { color: var(--ink-soft); font-size: 11px; }
+
+    .explorer { display: grid; gap: 12px; }
+    .toolbar { display: grid; grid-template-columns: minmax(240px, 1fr) 180px 170px auto; gap: 10px; align-items: center; }
+    .search-box { position: relative; }
+    .search-box::before { content: "⌕"; position: absolute; left: 15px; top: 8px; color: var(--ink-soft); font-size: 24px; line-height: 1; }
+    .search-box input, .toolbar select { width: 100%; min-height: 48px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); }
+    .search-box input { padding-left: 43px; }
+    .filters-row { display: flex; align-items: center; gap: 8px; min-width: 0; overflow-x: auto; padding: 2px 0 10px; scrollbar-width: thin; }
+    .filter-chip { flex: 0 0 auto; min-height: 37px; padding: 7px 12px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-soft); font-size: 12px; white-space: nowrap; }
+    .filter-chip:hover, .filter-chip.active { border-color: var(--ink); background: var(--ink); color: var(--canvas); }
+    .truth-note { display: flex; align-items: center; gap: 8px; margin: 0; padding: 9px 12px; border-radius: 10px; background: var(--mist); color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
+    .truth-note::before { content: ""; width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: var(--coral); }
+
+    .workspace { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(360px, .9fr); gap: 12px; min-height: 650px; }
+    .map-card, .list-card { overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .map-card { position: relative; min-height: 650px; background: #dce9e2; }
+    .map-topline, .list-topline { position: relative; z-index: 3; display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: 18px; }
+    .map-topline h2, .list-topline h2 { margin: 2px 0 5px; font-size: 17px; letter-spacing: -.04em; }
+    .map-topline p, .list-topline p { margin: 0; color: var(--ink-soft); font-size: 11px; line-height: 1.5; }
+    .map-label { padding: 8px 10px; border: 1px solid rgba(23,35,41,.22); border-radius: 9px; background: rgba(255,252,246,.82); color: var(--ink-soft); font-size: 10px; white-space: nowrap; }
+    .map-art { position: absolute; inset: 80px 0 0; overflow: hidden; background: radial-gradient(circle at 30% 35%, rgba(228,243,122,.35), transparent 22%), linear-gradient(135deg, rgba(255,252,246,.25), transparent 48%), #dce9e2; }
+    .map-art::before { content: ""; position: absolute; inset: -30%; opacity: .45; transform: rotate(-13deg); background-image: linear-gradient(31deg, transparent 47%, rgba(66,107,116,.17) 48%, rgba(66,107,116,.17) 49%, transparent 50%), linear-gradient(121deg, transparent 47%, rgba(66,107,116,.12) 48%, rgba(66,107,116,.12) 49%, transparent 50%); background-size: 92px 92px; }
+    .map-art::after { content: "TAIWAN · LOCATION CONTEXT"; position: absolute; right: 22px; bottom: 95px; color: rgba(66,107,116,.55); font: 700 10px ui-monospace, monospace; letter-spacing: .12em; transform: rotate(-68deg); }
+    .district { position: absolute; width: 62%; height: 75%; left: 20%; top: 10%; border: 1px solid rgba(66,107,116,.24); border-radius: 49% 44% 52% 40%; transform: rotate(17deg); background: rgba(255,252,246,.16); box-shadow: inset 22px 0 0 rgba(255,252,246,.10), inset -15px -5px 0 rgba(66,107,116,.06); }
+    .river { position: absolute; width: 82%; height: 30%; left: 7%; top: 36%; border-top: 2px solid rgba(66,107,116,.22); border-radius: 50%; transform: rotate(-14deg); }
+    .marker { position: absolute; z-index: 2; display: grid; place-items: center; width: 41px; height: 41px; border: 2px solid var(--ink); border-radius: 50% 50% 50% 6px; background: var(--signal); font-size: 15px; font-weight: 800; box-shadow: 4px 5px 0 rgba(23,35,41,.17); transform: translate(-50%, -50%) rotate(-5deg); transition: transform .16s ease, background .16s ease; }
+    .marker:hover, .marker.active { z-index: 4; background: var(--coral); transform: translate(-50%, -50%) rotate(-5deg) scale(1.13); }
+    .marker.unknown { border-style: dashed; background: rgba(255,252,246,.75); color: var(--ink-soft); box-shadow: none; }
+    .map-legend { position: absolute; z-index: 4; right: 18px; bottom: 18px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .legend { display: inline-flex; align-items: center; gap: 6px; padding: 8px 9px; border: 1px solid rgba(23,35,41,.16); border-radius: 999px; background: rgba(255,252,246,.85); color: var(--ink-soft); font-size: 10px; }
+    .legend i { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--signal); }
+    .legend i.outline { border: 1px dashed var(--ink-soft); background: transparent; }
+
+    .list-card { display: flex; flex-direction: column; min-height: 650px; }
+    .list-topline { border-bottom: 1px solid var(--line); }
+    .list-count { color: var(--ink-soft); font: 11px ui-monospace, monospace; white-space: nowrap; }
+    .cards { display: grid; gap: 9px; overflow-y: auto; padding: 12px; }
+    .cafe-card { display: grid; gap: 13px; width: 100%; padding: 16px; text-align: left; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); transition: border-color .16s ease, transform .16s ease, box-shadow .16s ease; }
+    .cafe-card:hover, .cafe-card.selected { border-color: var(--ink); box-shadow: 4px 5px 0 rgba(23,35,41,.12); transform: translateY(-1px); }
+    .card-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+    .card-head h3 { margin: 0 0 4px; font-size: 16px; letter-spacing: -.04em; }
+    .card-address { margin: 0; color: var(--ink-soft); font-size: 11px; }
+    .status { display: inline-flex; align-items: center; gap: 5px; min-height: 24px; padding: 4px 8px; border-radius: 999px; background: var(--mist); color: var(--blue); font-size: 10px; font-weight: 800; white-space: nowrap; }
+    .status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .status.partial { background: #fff0e9; color: #b65e47; }
+    .status.verified { background: #eff6b8; color: #56620a; }
+    .score-line { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+    .score { display: flex; align-items: baseline; gap: 8px; }
+    .score strong { font: 600 30px ui-monospace, monospace; letter-spacing: -.08em; }
+    .score span { color: var(--ink-soft); font-size: 11px; }
+    .card-action { color: var(--blue); font-size: 11px; font-weight: 800; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .metric { display: grid; gap: 5px; padding: 9px 10px; border-radius: 9px; background: var(--canvas); }
+    .metric span { color: var(--ink-soft); font-size: 10px; }
+    .metric strong { font: 600 12px ui-monospace, monospace; }
+    .card-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--ink-soft); font-size: 10px; }
+    .empty { padding: 32px 18px; color: var(--ink-soft); text-align: center; font-size: 13px; line-height: 1.7; }
+
+    .modal-backdrop { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(23,35,41,.62); }
+    .modal { width: min(630px, 100%); max-height: min(760px, 92vh); overflow: auto; border: 1px solid var(--ink); border-radius: 20px; background: var(--surface); box-shadow: 12px 15px 0 rgba(23,35,41,.22); }
+    .modal-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: start; justify-content: space-between; gap: 16px; padding: 20px 22px; border-bottom: 1px solid var(--line); background: rgba(255,252,246,.94); backdrop-filter: blur(12px); }
+    .modal-head h2 { margin: 2px 0 5px; font-family: Georgia, "Noto Serif TC", serif; font-size: 28px; font-weight: 500; letter-spacing: -.05em; }
+    .modal-head p { margin: 0; color: var(--ink-soft); font-size: 12px; }
+    .icon-button { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 50%; background: var(--canvas); font-size: 22px; }
+    .modal-body { display: grid; gap: 20px; padding: 22px; }
+    .detail-summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px; border-radius: 13px; background: var(--mist); }
+    .detail-summary p { margin: 4px 0 0; color: var(--ink-soft); font-size: 12px; line-height: 1.6; }
+    .detail-score { display: grid; place-items: center; width: 70px; height: 70px; flex: 0 0 auto; border: 1px dashed var(--ink-soft); border-radius: 50%; color: var(--ink-soft); font: 700 22px ui-monospace, monospace; }
+    .detail-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .detail-metric { padding: 11px 9px; border: 1px solid var(--line); border-radius: 10px; }
+    .detail-metric span { display: block; margin-bottom: 6px; color: var(--ink-soft); font-size: 10px; }
+    .detail-metric strong { font: 600 12px ui-monospace, monospace; }
+    .source-note { margin: 0; padding: 12px; border-left: 3px solid var(--coral); background: #fff0e9; color: var(--ink-soft); font-size: 11px; line-height: 1.7; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .field { display: grid; gap: 6px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 11px; font-weight: 800; }
+    .field input, .field select, .field textarea { width: 100%; min-height: 44px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 10px; background: var(--canvas); }
+    .field textarea { min-height: 90px; resize: vertical; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+    .success { padding: 16px; border-radius: 12px; background: #eff6b8; color: #56620a; font-size: 13px; line-height: 1.7; }
+    .toast { position: fixed; z-index: 80; right: 20px; bottom: 20px; max-width: min(360px, calc(100% - 40px)); padding: 12px 15px; border: 1px solid var(--ink); border-radius: 11px; background: var(--ink); color: var(--canvas); box-shadow: var(--shadow); font-size: 12px; }
+    .mobile-tabs { display: none; }
+    .prototype-footer { display: flex; align-items: start; justify-content: space-between; gap: 24px; margin-top: 20px; padding: 17px 0 0; border-top: 1px solid var(--line); color: var(--ink-soft); font-size: 11px; line-height: 1.7; }
+    .prototype-footer strong { color: var(--ink); }
+
+    @media (max-width: 1050px) {
+      .nav { display: none; }
+      .hero { grid-template-columns: 1fr 280px; gap: 24px; }
+      .toolbar { grid-template-columns: minmax(200px, 1fr) 160px 150px; }
+      .toolbar .button { grid-column: 1 / -1; justify-self: start; }
+    }
+    @media (max-width: 780px) {
+      .topbar { min-height: 68px; padding: 11px 18px; }
+      .top-actions .secondary { display: none; }
+      .content { width: min(100% - 24px, 650px); padding-top: 24px; padding-bottom: 90px; }
+      .hero { display: block; padding: 10px 0 24px; }
+      h1 { margin-top: 8px; font-size: clamp(39px, 13vw, 64px); }
+      .hero-copy { font-size: 14px; }
+      .hero-note { display: none; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat { min-height: 90px; padding: 14px; }
+      .stat strong { font-size: 19px; }
+      .toolbar { grid-template-columns: 1fr; }
+      .toolbar .button { grid-column: auto; width: 100%; }
+      .workspace { display: block; min-height: 0; }
+      .map-card { display: none; min-height: 460px; }
+      .map-card.mobile-visible { display: block; }
+      .list-card { min-height: 0; }
+      .list-card.mobile-hidden { display: none; }
+      .cards { overflow: visible; }
+      .mobile-tabs { position: fixed; z-index: 25; right: 12px; bottom: 12px; left: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 6px; border: 1px solid var(--ink); border-radius: 14px; background: var(--ink); box-shadow: var(--shadow); }
+      .mobile-tabs button { min-height: 44px; border: 0; border-radius: 9px; background: transparent; color: var(--canvas); font-size: 13px; font-weight: 800; }
+      .mobile-tabs button.active { background: var(--signal); color: var(--ink); }
+      .detail-grid { grid-template-columns: repeat(2, 1fr); }
+      .detail-metric:last-child { grid-column: 1 / -1; }
+      .prototype-footer { display: block; }
+      .prototype-footer p:last-child { margin-top: 8px; }
+    }
+    @media (max-width: 410px) {
+      .brand-copy span { display: none; }
+      .top-actions .button { padding: 9px 10px; font-size: 12px; }
+      .stats { gap: 1px; }
+      .stat { padding: 12px 10px; }
+      .stat span:last-child { font-size: 10px; }
+      .metrics { grid-template-columns: 1fr 1fr; }
+      .metrics .metric:last-child { grid-column: 1 / -1; }
+      .form-grid { grid-template-columns: 1fr; }
+      .field.full { grid-column: auto; }
+      .modal-backdrop { align-items: end; padding: 0; }
+      .modal { max-height: 94vh; border-radius: 20px 20px 0 0; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Cafework 回到首頁">
+        <span class="brand-mark">cw</span>
+        <span class="brand-copy"><strong>Cafework</strong><span>找一個真的能工作的地方</span></span>
+      </a>
+      <nav class="nav" aria-label="主要導覽">
+        <button class="active" type="button" data-nav="explore">探索地圖</button>
+        <button type="button" data-nav="data">資料怎麼來</button>
+        <button type="button" data-nav="saved">我的清單 <small>即將推出</small></button>
+      </nav>
+      <div class="top-actions">
+        <button class="button secondary" type="button" id="dataButton">資料說明</button>
+        <button class="button primary" type="button" id="contributeButton">補一筆資料</button>
       </div>
     </header>
 
-    <div class="p-8">
-      <!-- Top KPI Row -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-5">
-        <div class="card kpi">
-        <div class="flex items-center justify-between">
-          <div class="label">本週完成</div>
-          <span class="badge badge-mint">●</span>
+    <main class="content" id="top">
+      <section class="hero" aria-labelledby="page-title">
+        <div>
+          <p class="eyebrow">Taiwan · work-friendly cafe field guide</p>
+          <h1 id="page-title">先看工作條件，<br>再決定要不要走進去。</h1>
+          <p class="hero-copy">Cafework 把咖啡廳的 Wi-Fi、插座、安靜度與久坐友善度整理在一起。先找到候選，再由到過現場的人補上證據。</p>
         </div>
-        <div class="value">12 / 18</div>
-        <div class="text-xs text-ink-600">↗ 較上週 +3</div>
-        
-      </div>
-      <div class="card kpi">
-        <div class="flex items-center justify-between">
-          <div class="label">活躍客戶</div>
-          <span class="badge badge-blue">●</span>
-        </div>
-        <div class="value">8</div>
-        <div class="text-xs text-ink-600">+2 本月新增</div>
-        
-      </div>
-      <div class="card kpi">
-        <div class="flex items-center justify-between">
-          <div class="label">待辦任務</div>
-          <span class="badge badge-warn">●</span>
-        </div>
-        <div class="value">5</div>
-        <div class="text-xs text-ink-600">3 件將到期</div>
-        
-      </div>
-      </div>
+        <aside class="hero-note" aria-label="資料信任說明">
+          <p class="label">現在的資料狀態</p>
+          <strong>位置很多，證據還在長。</strong>
+          <p>目前是開放資料目錄與社群驗證的原型。沒有資料的地方會直接顯示「尚無資料」，不把猜測包裝成推薦。</p>
+        </aside>
+      </section>
 
-      <!-- Bottom Detail Row -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-        <div class="card">
-        <div class="flex items-center justify-between mb-3">
-          <div class="font-bold text-base">快速操作</div>
-          <a class="text-xs text-ink-600">全部 →</a>
-        </div>
-        <div class="space-y-1">
-          <div class="quick-action">
-            <div class="icon bg-mint-100 text-mint-700">＋</div>
-            <div class="flex-1">
-              <div class="text font-semibold text-sm">新增記錄</div>
-              <div class="text-xs text-ink-600">快速建立新項目</div>
-            </div>
-          </div>
-          <div class="quick-action">
-            <div class="icon bg-blue-100 text-blue">📋</div>
-            <div class="flex-1">
-              <div class="text font-semibold text-sm">匯出報表</div>
-              <div class="text-xs text-ink-600">PDF / Excel / CSV</div>
-            </div>
-          </div>
-          <div class="quick-action">
-            <div class="icon bg-yellow-100 text-warn">⚡</div>
-            <div class="flex-1">
-              <div class="text font-semibold text-sm">批次處理</div>
-              <div class="text-xs text-ink-600">一次處理多筆</div>
-            </div>
-          </div>
-          <div class="quick-action">
-            <div class="icon bg-red-100 text-danger">🔔</div>
-            <div class="flex-1">
-              <div class="text font-semibold text-sm">通知設定</div>
-              <div class="text-xs text-ink-600">管理提醒規則</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="flex items-center justify-between mb-3">
-          <div class="font-bold text-base">本月行程</div>
-          <div class="text-xs text-ink-600">9 / 2026</div>
-        </div>
-        <div class="grid grid-cols-7 gap-1 text-xs text-center mb-1 text-ink-600">
-          <div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div><div>日</div>
-        </div>
-        <div class="grid grid-cols-7 gap-1 text-xs text-center">
-          <div class="py-1.5 text-ink-400">1</div>
-          <div class="py-1.5 text-ink-400">2</div>
-          <div class="py-1.5">3</div>
-          <div class="py-1.5">4</div>
-          <div class="py-1.5 bg-mint-100 text-mint-700 rounded font-semibold">5</div>
-          <div class="py-1.5">6</div>
-          <div class="py-1.5">7</div>
-          <div class="py-1.5">8</div>
-          <div class="py-1.5">9</div>
-          <div class="py-1.5">10</div>
-          <div class="py-1.5">11</div>
-          <div class="py-1.5">12</div>
-          <div class="py-1.5">13</div>
-          <div class="py-1.5">14</div>
-          <div class="py-1.5 bg-blue text-white rounded font-semibold">15</div>
-          <div class="py-1.5">16</div>
-          <div class="py-1.5">17</div>
-          <div class="py-1.5">18</div>
-          <div class="py-1.5">19</div>
-          <div class="py-1.5">20</div>
-          <div class="py-1.5">21</div>
-          <div class="py-1.5 bg-mint-100 text-mint-700 rounded">22</div>
-          <div class="py-1.5">23</div>
-          <div class="py-1.5">24</div>
-          <div class="py-1.5">25</div>
-          <div class="py-1.5">26</div>
-          <div class="py-1.5">27</div>
-          <div class="py-1.5">28</div>
-          <div class="py-1.5">29</div>
-          <div class="py-1.5">30</div>
-        </div>
-        <div class="mt-3 pt-3 border-t border-line space-y-2 text-xs">
-          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-mint-500"></span><span>09:00 站會</span></div>
-          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-blue"></span><span>14:00 客戶會議</span></div>
-          <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-warn"></span><span>17:30 截止繳交</span></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="flex items-center justify-between mb-3">
-          <div class="font-bold text-base">最近動態</div>
-          <a class="text-xs text-ink-600">查看全部 →</a>
-        </div>
-        <div class="space-y-0">
-          <div class="timeline-item">
-            <div class="timeline-dot bg-mint-500"></div>
-            <div class="flex-1 text-sm">
-              <div class="font-medium">新客戶完成首次預約</div>
-              <div class="text-xs text-ink-600 mt-0.5">5 分鐘前 · 系統自動</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-dot bg-blue"></div>
-            <div class="flex-1 text-sm">
-              <div class="font-medium">報表匯出完成</div>
-              <div class="text-xs text-ink-600 mt-0.5">1 小時前 · PDF 1.2MB</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-dot bg-warn"></div>
-            <div class="flex-1 text-sm">
-              <div class="font-medium">待辦提醒：3 件將到期</div>
-              <div class="text-xs text-ink-600 mt-0.5">3 小時前 · 提醒中心</div>
-            </div>
-          </div>
-          <div class="timeline-item">
-            <div class="timeline-dot bg-ink-400"></div>
-            <div class="flex-1 text-sm">
-              <div class="font-medium">系統備份完成</div>
-              <div class="text-xs text-ink-600 mt-0.5">昨天 23:00 · 排程任務</div>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
+      <section class="stats" aria-label="目錄摘要">
+        <div class="stat"><p class="label">目錄</p><strong>4,357</strong><span>筆 OSM 咖啡廳資料</span></div>
+        <div class="stat"><p class="label">範圍</p><strong>22</strong><span>個台灣縣市／區域</span></div>
+        <div class="stat"><p class="label">驗證狀態</p><strong>待補</strong><span>多數店家尚無工作條件</span></div>
+        <div class="stat"><p class="label">使用方式</p><strong>免費</strong><span>免登入，先從清單開始</span></div>
+      </section>
 
-      <!-- Footer -->
-      <footer class="mt-12 pt-6 border-t border-line text-xs text-ink-600 flex items-center justify-between">
-        <div>digital-nomad-cafe · Project digital-nomad-cafe-map</div>
-        <div>Made with OpenClaw · 2026-09-06</div>
+      <section class="explorer" aria-label="咖啡廳探索工具">
+        <div class="toolbar">
+          <label class="search-box"><span class="sr-only">搜尋店名、地址或區域</span><input id="searchInput" type="search" placeholder="搜尋店名、地址或區域" autocomplete="off"></label>
+          <label><span class="sr-only">選擇城市</span><select id="citySelect"><option value="all">全台灣</option><option value="taipei">台北</option><option value="taichung">台中</option><option value="tainan">台南</option><option value="kaohsiung">高雄</option><option value="hualien">花蓮</option></select></label>
+          <label><span class="sr-only">排序方式</span><select id="sortSelect"><option value="default">工作條件優先</option><option value="fresh">最近更新</option><option value="name">店名 A–Z</option></select></label>
+          <button class="button dark" type="button" id="resetButton">清除條件</button>
+        </div>
+        <div class="filters-row" aria-label="快速篩選">
+          <button class="filter-chip" type="button" data-filter="wifi">Wi-Fi 50+ Mbps</button>
+          <button class="filter-chip" type="button" data-filter="outlet">插座較多</button>
+          <button class="filter-chip" type="button" data-filter="quiet">安靜 4+</button>
+          <button class="filter-chip" type="button" data-filter="stay">不限時</button>
+        </div>
+        <p class="truth-note" aria-live="polite">目前多數店家尚待社群驗證；篩選不會把「未知」當成符合。</p>
+
+        <div class="workspace">
+          <section class="map-card" id="mapCard" aria-label="位置示意地圖">
+            <div class="map-topline"><div><p class="label">Location context</p><h2 id="mapTitle">全台灣工作訊號</h2><p>位置示意 · 地圖失效時仍可使用右側清單</p></div><span class="map-label">列表優先</span></div>
+            <div class="map-art" aria-hidden="true">
+              <div class="district"></div><div class="river"></div>
+              <button class="marker unknown" style="left: 43%; top: 25%;" data-id="small-half" aria-label="小半咖啡，待驗證">—</button>
+              <button class="marker unknown" style="left: 57%; top: 39%;" data-id="daily-sun" aria-label="日常日光，待驗證">—</button>
+              <button class="marker unknown" style="left: 49%; top: 54%;" data-id="corner-studio" aria-label="角落工作室，待驗證">—</button>
+              <button class="marker unknown" style="left: 38%; top: 72%;" data-id="sea-book" aria-label="海邊書房，待驗證">—</button>
+              <button class="marker unknown" style="left: 68%; top: 68%;" data-id="wander-beans" aria-label="Wander Beans，待驗證">—</button>
+            </div>
+            <div class="map-legend"><span class="legend"><i class="outline"></i>待驗證</span><span class="legend"><i></i>已補資料（示意）</span></div>
+          </section>
+
+          <section class="list-card" id="listCard" aria-label="咖啡廳結果清單">
+            <div class="list-topline"><div><p class="label">Shortlist</p><h2>可能適合工作的地方</h2><p>先看證據狀態，再看距離與習慣</p></div><span class="list-count" id="resultCount">5 筆</span></div>
+            <div class="cards" id="cards"></div>
+          </section>
+        </div>
+      </section>
+
+      <footer class="prototype-footer">
+        <p><strong>原型示意，不代表即時營業狀態。</strong><br>資料來源與驗證規則會在正式上線前獨立審核。</p>
+        <p>Prototype v4.0 · 2026-09-21<br><a href="#top">回到頁首 ↑</a></p>
       </footer>
-    </div>
-  </main>
+    </main>
 
-  <!-- Mobile Bottom Nav -->
-  <nav class="mobile-nav">
-    <button><span>🏠</span><span>首頁</span></button>
-      <button><span>📊</span><span>儀表板</span></button>
-      <button><span>📋</span><span>任務清單</span></button>
-      <button><span>📈</span><span>報表分析</span></button>
-  </nav>
+    <nav class="mobile-tabs" aria-label="手機視圖切換">
+      <button class="active" type="button" data-mobile="list">清單</button>
+      <button type="button" data-mobile="map">地圖</button>
+    </nav>
+  </div>
 
-<script>
-  // Sidebar nav click handler
-  document.querySelectorAll('.sidebar-item').forEach(item => {
-    item.addEventListener('click', () => {
-      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-      item.classList.add('active');
-    });
-  });
-  // Quick actions demo
-  document.querySelectorAll('.quick-action').forEach(item => {
-    item.addEventListener('click', () => {
-      const title = item.querySelector('.text')?.textContent || '動作';
-      const toast = document.createElement('div');
-      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:white;padding:10px 20px;border-radius:10px;font-size:13px;z-index:1000;box-shadow:0 10px 30px rgba(0,0,0,0.2)';
-      toast.textContent = '✓ ' + title + ' 已觸發';
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 2000);
-    });
-  });
-  // Notify
-  document.getElementById('btn-notify')?.addEventListener('click', () => {
-    alert('🔔 通知中心\n\n目前沒有新通知。');
-  });
-</script>
+  <div class="modal-backdrop hidden" id="detailModal" role="presentation">
+    <article class="modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <div class="modal-head"><div><p class="label">Cafe work profile</p><h2 id="detailTitle">—</h2><p id="detailAddress">—</p></div><button class="icon-button" type="button" data-close="detailModal" aria-label="關閉咖啡廳詳情">×</button></div>
+      <div class="modal-body">
+        <div class="detail-summary"><div><span class="status" id="detailStatus">待驗證</span><p>工作分數只有在足夠的現場證據後才會出現。現在先把未知留白。</p></div><div class="detail-score">—</div></div>
+        <div class="detail-grid"><div class="detail-metric"><span>Wi-Fi</span><strong>尚無資料</strong></div><div class="detail-metric"><span>安靜度</span><strong>尚無資料</strong></div><div class="detail-metric"><span>插座</span><strong>尚無資料</strong></div><div class="detail-metric"><span>價格</span><strong>尚無資料</strong></div><div class="detail-metric"><span>久坐友善</span><strong>尚無資料</strong></div></div>
+        <p class="source-note">資料來源：OpenStreetMap 開放資料。最後驗證：尚無資料。這是一筆位置存在的紀錄，不代表店內今天一定有空位、Wi-Fi 或可久坐。</p>
+        <div class="modal-actions"><button class="button" type="button" data-close="detailModal">先回清單</button><button class="button primary" type="button" id="verifyFromDetail">我到過這裡，補一筆</button></div>
+      </div>
+    </article>
+  </div>
+
+  <div class="modal-backdrop hidden" id="contributeModal" role="presentation">
+    <article class="modal" role="dialog" aria-modal="true" aria-labelledby="contributeTitle">
+      <div class="modal-head"><div><p class="label">Community note</p><h2 id="contributeTitle">補上你親眼看到的條件</h2><p>只填你今天實際觀察到的事。</p></div><button class="icon-button" type="button" data-close="contributeModal" aria-label="關閉補資料表單">×</button></div>
+      <form class="modal-body" id="contributeForm">
+        <p class="source-note">這是原型中的本機示意表單。送出後不會同步到公開資料庫，也不會寄出 email。</p>
+        <div class="form-grid"><div class="field"><label for="cafeName">店名</label><input id="cafeName" name="cafeName" placeholder="例如：小半咖啡" required></div><div class="field"><label for="visitedAt">到訪日期</label><input id="visitedAt" name="visitedAt" type="date"></div><div class="field"><label for="wifiSpeed">Wi-Fi 速度（Mbps）</label><input id="wifiSpeed" name="wifiSpeed" type="number" min="0" placeholder="只填測過的數字"></div><div class="field"><label for="outlets">插座狀況</label><select id="outlets" name="outlets"><option value="">尚未觀察</option><option>少量，有些座位有</option><option>多數座位有</option><option>幾乎每桌都有</option></select></div><div class="field"><label for="noise">安靜度</label><select id="noise" name="noise"><option value="">尚未觀察</option><option>1 · 適合聊天</option><option>2 · 偶爾有人聲</option><option>3 · 可以專注</option><option>4 · 很安靜</option><option>5 · 深度工作</option></select></div><div class="field"><label for="stay">久坐／限時</label><select id="stay" name="stay"><option value="">不確定</option><option>不限時</option><option>尖峰時段可能限時</option><option>有明確限時</option></select></div><div class="field full"><label for="note">補充（選填）</label><textarea id="note" name="note" placeholder="例如：平日下午兩點，靠窗區有插座；店內音樂偏小聲。"></textarea></div></div>
+        <div id="contributeSuccess" class="success hidden">已記錄在這台裝置。正式版本會在後端與審核規則確認後，才決定是否公開。</div>
+        <div class="modal-actions"><button class="button" type="button" data-close="contributeModal">取消</button><button class="button primary" type="submit">記錄這筆觀察</button></div>
+      </form>
+    </article>
+  </div>
+
+  <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const cafes = [
+      { id: 'small-half', name: '小半咖啡', city: 'taipei', cityName: '台北', address: '台北市大安區 · 開放資料', status: 'imported', tags: ['獨立店', '有營業時間'] },
+      { id: 'daily-sun', name: '日常日光', city: 'taichung', cityName: '台中', address: '台中市西區 · 開放資料', status: 'imported', tags: ['採光好'] },
+      { id: 'corner-studio', name: '角落工作室', city: 'tainan', cityName: '台南', address: '台南市中西區 · 開放資料', status: 'partial', tags: ['工作者常提及'] },
+      { id: 'sea-book', name: '海邊書房', city: 'hualien', cityName: '花蓮', address: '花蓮市 · 開放資料', status: 'imported', tags: ['靠近海邊'] },
+      { id: 'wander-beans', name: 'Wander Beans', city: 'kaohsiung', cityName: '高雄', address: '高雄市鹽埕區 · 開放資料', status: 'imported', tags: ['英文店名'] }
+    ];
+    const state = { query: '', city: 'all', sort: 'default', filters: new Set(), selected: null, lastTrigger: null };
+    const cards = document.getElementById('cards');
+    const resultCount = document.getElementById('resultCount');
+    const mapCard = document.getElementById('mapCard');
+    const listCard = document.getElementById('listCard');
+
+    function statusText(status) { return status === 'partial' ? '部分驗證' : status === 'verified' ? '已驗證' : '開放資料'; }
+    function matches(cafe) {
+      const query = state.query.trim().toLowerCase();
+      const searchable = `${cafe.name} ${cafe.cityName} ${cafe.address}`.toLowerCase();
+      if (query && !searchable.includes(query)) return false;
+      if (state.city !== 'all' && cafe.city !== state.city) return false;
+      // Current seed records intentionally have no measured dimensions.
+      if (state.filters.size) return false;
+      return true;
+    }
+    function visibleCafes() {
+      const result = cafes.filter(matches);
+      if (state.sort === 'name') result.sort((a, b) => a.name.localeCompare(b.name, 'zh-Hant'));
+      if (state.sort === 'fresh') result.sort((a, b) => a.status.localeCompare(b.status));
+      return result;
+    }
+    function renderCards() {
+      const result = visibleCafes();
+      resultCount.textContent = `${result.length} 筆`;
+      cards.innerHTML = result.length ? result.map(cafe => `
+        <button class="cafe-card ${state.selected === cafe.id ? 'selected' : ''}" type="button" data-id="${cafe.id}">
+          <div class="card-head"><div><h3>${cafe.name}</h3><p class="card-address">${cafe.cityName} · ${cafe.address.split(' · ')[0]}</p></div><span class="status ${cafe.status}">${statusText(cafe.status)}</span></div>
+          <div class="score-line"><div class="score"><strong>—</strong><span>尚未形成工作分數</span></div><span class="card-action">查看工作條件 →</span></div>
+          <div class="metrics"><div class="metric"><span>Wi-Fi</span><strong>尚無資料</strong></div><div class="metric"><span>插座</span><strong>尚無資料</strong></div><div class="metric"><span>安靜</span><strong>尚無資料</strong></div></div>
+          <div class="card-foot"><span>${cafe.tags.join(' · ')}</span><span>最後驗證：—</span></div>
+        </button>`).join('') : '<div class="empty">沒有符合目前條件的店家。<br>可以先清除篩選，或換一個城市。</div>';
+      cards.querySelectorAll('[data-id]').forEach(card => card.addEventListener('click', () => openDetail(card.dataset.id, card)));
+    }
+    function openDetail(id, trigger) {
+      const cafe = cafes.find(item => item.id === id);
+      if (!cafe) return;
+      state.selected = id; state.lastTrigger = trigger || document.activeElement;
+      document.getElementById('detailTitle').textContent = cafe.name;
+      document.getElementById('detailAddress').textContent = `${cafe.cityName} · ${cafe.address}`;
+      const status = document.getElementById('detailStatus');
+      status.textContent = statusText(cafe.status); status.className = `status ${cafe.status}`;
+      document.getElementById('detailModal').classList.remove('hidden');
+      renderCards();
+      document.querySelector('#detailModal .icon-button').focus();
+    }
+    function closeModal(id) {
+      const modal = document.getElementById(id); if (!modal) return;
+      modal.classList.add('hidden');
+      if (state.lastTrigger && document.body.contains(state.lastTrigger)) state.lastTrigger.focus();
+    }
+    function openContribute() {
+      state.lastTrigger = document.activeElement;
+      document.getElementById('contributeModal').classList.remove('hidden');
+      document.getElementById('contributeSuccess').classList.add('hidden');
+      document.querySelector('#contributeModal input').focus();
+    }
+    function toast(message) {
+      const element = document.getElementById('toast'); element.textContent = message; element.classList.remove('hidden');
+      window.clearTimeout(window.__toastTimer); window.__toastTimer = window.setTimeout(() => element.classList.add('hidden'), 2600);
+    }
+    function reset() {
+      state.query = ''; state.city = 'all'; state.sort = 'default'; state.filters.clear();
+      document.getElementById('searchInput').value = ''; document.getElementById('citySelect').value = 'all'; document.getElementById('sortSelect').value = 'default';
+      document.querySelectorAll('.filter-chip').forEach(chip => chip.classList.remove('active'));
+      renderCards(); document.getElementById('mapTitle').textContent = '全台灣工作訊號';
+    }
+    document.getElementById('searchInput').addEventListener('input', event => { state.query = event.target.value; renderCards(); });
+    document.getElementById('citySelect').addEventListener('change', event => { state.city = event.target.value; document.getElementById('mapTitle').textContent = event.target.options[event.target.selectedIndex].textContent + '工作訊號'; renderCards(); });
+    document.getElementById('sortSelect').addEventListener('change', event => { state.sort = event.target.value; renderCards(); });
+    document.getElementById('resetButton').addEventListener('click', reset);
+    document.querySelectorAll('.filter-chip').forEach(chip => chip.addEventListener('click', () => { const key = chip.dataset.filter; if (state.filters.has(key)) { state.filters.delete(key); chip.classList.remove('active'); } else { state.filters.add(key); chip.classList.add('active'); } renderCards(); toast('目前資料尚未有可驗證的數值，已顯示空結果。'); }));
+    document.querySelectorAll('.marker').forEach(marker => marker.addEventListener('click', () => openDetail(marker.dataset.id, marker)));
+    document.getElementById('contributeButton').addEventListener('click', openContribute);
+    document.getElementById('dataButton').addEventListener('click', () => toast('資料說明：OSM 位置資料 + 社群現場觀察；目前仍是原型。'));
+    document.querySelectorAll('[data-nav]').forEach(button => button.addEventListener('click', () => { if (button.dataset.nav !== 'explore') toast('這個入口會在下一階段開放。'); else document.getElementById('top').scrollIntoView(); }));
+    document.querySelectorAll('[data-close]').forEach(button => button.addEventListener('click', () => closeModal(button.dataset.close)));
+    document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.addEventListener('mousedown', event => { if (event.target === backdrop) closeModal(backdrop.id); }));
+    document.getElementById('verifyFromDetail').addEventListener('click', () => { closeModal('detailModal'); openContribute(); });
+    document.getElementById('contributeForm').addEventListener('submit', event => { event.preventDefault(); document.getElementById('contributeSuccess').classList.remove('hidden'); toast('已記錄在這台裝置（原型示意）'); });
+    document.addEventListener('keydown', event => { if (event.key === 'Escape') { closeModal('detailModal'); closeModal('contributeModal'); } });
+    document.querySelectorAll('[data-mobile]').forEach(button => button.addEventListener('click', () => { const view = button.dataset.mobile; document.querySelectorAll('[data-mobile]').forEach(item => item.classList.toggle('active', item === button)); mapCard.classList.toggle('mobile-visible', view === 'map'); listCard.classList.toggle('mobile-hidden', view === 'map'); }));
+    renderCards();
+  </script>
 </body>
 </html>

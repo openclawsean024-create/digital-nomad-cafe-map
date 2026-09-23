@@ -4,6 +4,27 @@
 
 ---
 
+## [v4.0] · 2026-09-21 · product reset / prototype milestone
+
+### Added
+
+- Replaced the contradictory v3.x contract with a single current `PRD/SPEC.md`.
+- Added `PRD/UI-SPEC.md` with the discovery-first information architecture, visual tokens, responsive behavior, accessibility rules, and unknown-data states.
+- Added project-level `AGENTS.md` and `SOP.md` with prototype-before-React and data-trust invariants.
+- Rewrote `dashboard.html` as a standalone Cafework map/list prototype with search, city scope, filters, sort, detail view, contribution modal, mobile tabs, and explicit prototype boundaries.
+
+### Changed
+
+- Product language now describes a free Taiwan directory with transparent evidence, not a global or premium service.
+- Unknown work-condition data is treated as unknown; it must not be represented as a measured zero or fabricated score.
+
+### Deferred
+
+- Formal React page rewrite waits for prototype confirmation.
+- Data nullability cleanup, backend verification, integrations, legacy-module cleanup, and deployment remain separate milestones.
+
+---
+
 ## [v3.0.2] · 2026-09-06 · fleet-upgrade
 
 ### Added（新增）

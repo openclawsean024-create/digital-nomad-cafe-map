@@ -1,5 +1,18 @@
 # Sprint Status
 
+## Current v4 implementation milestone · 2026-09-23
+
+- State: **approved prototype implemented and locally verified; not production-ready**.
+- Product contract: `PRD/SPEC.md` v4.0.
+- UI contract: `PRD/UI-SPEC.md` v4.0.
+- Standalone prototype: `dashboard.html` (Cafework exploration flow; no generic dashboard remains).
+- Formal React page rewrite: **implemented by MiniMax multi-agent team and independently rechecked locally**.
+- Current truth: 4,357 imported OSM records, but most work-condition fields are unverified. The prototype renders unknown values explicitly and makes no live-availability or recommendation claim.
+- Verification evidence for this milestone: `npm run test` → 189/189 passed; `npm run typecheck` → exit 0; `npm run build` → exit 0 with 5 static routes; fresh dev browser smoke → Leaflet map mounted with no console errors. `npm ci` requires `--legacy-peer-deps` because of the existing React 19 / react-leaflet React 18 peer mismatch.
+- Deployment: release action requested; GitHub/Vercel/Notion SHA synchronization remains pending until the release workflow completes.
+
+The historical Stage 4/5 notes below describe the prior implementation rounds and are not the current product-readiness status.
+
 - Project: digital-nomad-cafe-map
 - Started: 2026-07-19
 - State: **Stage 5 pilot-ready done** (2026-08-29 verified — **8/8 deliverables shipped**, deliverable 8/8 = full verification done at Round 9); Stage 4 production deployment **done** (2026-08-29 verified); **Stage 5 deliverable 1/8 (/landing) shipped 2026-08-29**; **Stage 5 deliverable 2/8 (/verify) shipped 2026-08-29**; **Stage 5 deliverable 3/8 (/admin) shipped 2026-08-29**; **Stage 5 deliverable 4/8 (paywall demo upgrade) shipped 2026-08-29**; **Stage 5 deliverable 5/8 (city reminder cron template + Resend mock email template) shipped 2026-08-29**; **Stage 5 deliverable 6/8 (FOUNDER_CHECKLIST.md) shipped 2026-08-29**; **Stage 5 deliverable 7/8 (STATUS.md + PROJECT_STATE.md → Stage 5 ready) shipped 2026-08-29**; **Stage 5 deliverable 8/8 (full verification: tests/typecheck/build/6 URLs all 200 + byte-diff acknowledged) shipped 2026-08-29**

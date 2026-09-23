@@ -39,6 +39,10 @@ function brandPriority(brand: string | null | undefined): number {
   return 50;  // 其他連鎖
 }
 
+function unknownMetric(value: number | null | undefined): number | null {
+  return value === null || value === undefined || value <= 0 ? null : value;
+}
+
 // 將 OSM 資料轉成 Cafe 物件
 const mappedCafes: MappedCafe[] = allCafes.map((c) => ({
   id: c.id,
@@ -50,18 +54,18 @@ const mappedCafes: MappedCafe[] = allCafes.map((c) => ({
   countryCode: c.countryCode,
   lat: c.lat,
   lng: c.lng,
-  wifiMbps: c.wifiMbps ?? 0,
-  quietScore: c.quietScore ?? 0,
-  outletRate: c.outletRate ?? 0,
-  priceMedian: c.priceMedian ?? 0,
-  friendliness: c.friendliness ?? 0,
+  wifiMbps: unknownMetric(c.wifiMbps),
+  quietScore: unknownMetric(c.quietScore),
+  outletRate: unknownMetric(c.outletRate),
+  priceMedian: unknownMetric(c.priceMedian),
+  friendliness: unknownMetric(c.friendliness),
   verifierCount: c.verifierCount,
   status: c.status as 'active',
   hours: c.hours ?? '營業時間請見店家公告',
   tags: c.tags,
   reviews: c.reviews as Review[],
   createdAt: c.createdAt,
-  lastVerifiedAt: c.lastVerifiedAt ?? c.createdAt,
+  lastVerifiedAt: c.lastVerifiedAt,
   phone: c.phone,
   website: c.website,
   brand: c.brand,

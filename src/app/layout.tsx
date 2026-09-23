@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Cafework — 全台 4357 間遠距工作咖啡廳地圖',
-  description: '在台灣找能工作的咖啡廳:5 維評分 WiFi、插座、安靜度、價格、友善度。資料來源 OpenStreetMap,完全免費、免登入。',
+  title: 'Cafework｜找到真的能工作的地方',
+  description:
+    '從 OpenStreetMap 公開資料出發,用 Wi-Fi / 安靜 / 插座 / 友善度四維交叉比對 — 沒有實地驗證的資料預設不顯示數字,免登入、免付費。',
   openGraph: {
     title: 'Cafework — 全台咖啡廳工作訊號地圖',
     description: '在台灣找能工作的咖啡廳',

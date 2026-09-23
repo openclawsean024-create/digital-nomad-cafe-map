@@ -1,5 +1,17 @@
 # Project State
 
+## Current ground truth · 2026-09-23
+
+- Current milestone: **v4.0 approved prototype implementation / release candidate review**.
+- Read first: `PRD/SPEC.md` and `PRD/UI-SPEC.md`.
+- Status: locally verified release candidate; not production-ready because real verification data and backend integrations are still missing.
+- Prototype: `dashboard.html` is now the canonical standalone visual artifact for this milestone.
+- Data truth: 4,357 imported OSM records, mostly without community work-condition measurements. Unknown values are a known data-model issue in the existing React path and must not be shown as measured zeros.
+- Verification: `npm run test` 189/189, `npm run typecheck` exit 0, `npm run build` exit 0, and fresh dev browser smoke passed; `npm ci` requires `--legacy-peer-deps` due to the existing React 19 / react-leaflet React 18 peer mismatch.
+- Deployment and Notion sync: release action requested; final SHA alignment must be recorded after push/deploy.
+
+Historical Stage 4/5 notes below are retained as archive evidence only and do not override this current state.
+
 ## Ground truth
 - Sprint workspace: `/Users/sean/Program/digital-nomad-cafe-map` (the prior canonical `/tmp/digital-nomad-cafe-map-dev` referenced in earlier docs is no longer present in this environment; git history is intact)
 - GitHub: `https://github.com/openclawsean024-create/digital-nomad-cafe-map`

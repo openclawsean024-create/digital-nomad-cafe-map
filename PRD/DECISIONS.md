@@ -1,16 +1,25 @@
-# Architecture Decisions
+# Architecture Decisions · v4.0
 
-## D-001 — Single Next.js 16 entry point
-Use `src/app/` as the only App Router. The legacy root `app/` was removed because dual routers caused alias and build conflicts.
+## D-001 — One canonical App Router
 
-## D-002 — Local-first degradation
-The app must remain demonstrable without private Supabase, Stripe, Resend, or speedtest credentials. Community seed reads and local contributions/reviews/reminders are functional; unavailable paid/backend integrations are labeled truthfully instead of simulated as real transactions.
+Use `src/app/` as the only Next.js application entry point. Legacy root modules are archive material until a separate migration proves they are still needed.
 
-## D-003 — Transparent seed data
-Pilot cafe names and addresses are marked as community seed/pending re-verification. The product does not fabricate real-time venue facts.
+## D-002 — Public discovery stays free
 
-## D-004 — Five-dimensional work score
-Use the SPEC weighting: WiFi 30%, quiet 30%, outlets 20%, price 10%, friendliness 10%. The score is implemented in a pure tested domain function.
+The public map/list flow has no account, subscription, checkout, or paywall. Product usefulness is measured by successful discovery and trustworthy evidence, not gated views.
 
-## D-005 — Canonical deployment identity
-The new Vercel project must be `digital-nomad-cafe-map`. The pre-existing `digital-nomad-cafe-map-prod` is a legacy naming mismatch and is not reused for this sprint.
+## D-003 — Imported presence is not verification
+
+OSM records provide a place to start. They do not prove Wi-Fi, seating, noise, opening status, or work friendliness. The UI must show this distinction.
+
+## D-004 — Unknown values remain unknown
+
+Null or missing observations must stay nullable through the data layer and render as `尚無資料`. Coercing missing evidence to zero is an implementation defect to fix before the formal page rewrite.
+
+## D-005 — Prototype before React rewrite
+
+`dashboard.html` is an independent visual prototype. Formal React changes wait for Sean's confirmation so the next implementation is based on an approved information architecture instead of another exploratory round.
+
+## D-006 — Integrations are opt-in and explicit
+
+Supabase, Stripe, Resend, speed-test APIs, and email capture remain out of scope until a separate contract defines consent, error handling, storage, and release verification.

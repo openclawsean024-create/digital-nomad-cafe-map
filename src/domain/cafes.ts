@@ -3,6 +3,8 @@ import type {
   Cafe,
   CafeFilters,
   CafeInput,
+  CafeMetric,
+  EvidenceStatus,
   Review,
   ReviewInput,
   VerificationInput,
@@ -10,13 +12,27 @@ import type {
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
 
+export function isKnownMetric(value: CafeMetric): value is number {
+  return value !== null && value > 0;
+}
+
+export function hasAnyWorkEvidence(cafe: Cafe): boolean {
+  return [cafe.wifiMbps, cafe.quietScore, cafe.outletRate, cafe.priceMedian, cafe.friendliness].some(isKnownMetric);
+}
+
+export function getEvidenceStatus(cafe: Cafe): EvidenceStatus {
+  if (cafe.verifierCount > 0 && [cafe.wifiMbps, cafe.quietScore, cafe.outletRate, cafe.priceMedian, cafe.friendliness].every(isKnownMetric)) return 'verified';
+  if (cafe.verifierCount > 0 || hasAnyWorkEvidence(cafe)) return 'partial';
+  return 'imported';
+}
+
 /**
  * 計算工作分數
  * wifi 30% + 安靜 30% + 插座 20% + 價格 10% + 友善度 10% = 100%
  *
  * 規則:
- * - 4 個主要維度 (wifi/quiet/outlets/friendliness) 為 0 = 「未知」, 該維度貢獻 0
- * - priceMedian 為 0 = 「無價格資訊」, **不算入** (避免「全 0 但 10 分」的 bug)
+ * - 4 個主要維度 (wifi/quiet/outlets/friendliness) 為 null = 「未知」, 該維度貢獻 0
+ * - priceMedian 為 null = 「無價格資訊」, **不算入** (避免「全未知但 10 分」的 bug)
  * - 全部 5 個維度都未知 = 完全沒評分, 回傳 0 (UI 顯示「—」)
  * - 至少 1 個維度已知 = 用固定權重算 (符合 SPEC §1.4)
  *
@@ -24,12 +40,12 @@ const clamp = (value: number, min: number, max: number) => Math.min(max, Math.ma
  */
 export function calculateWorkScore(cafe: Cafe): number {
   let total = 0;
-  if (cafe.wifiMbps > 0) total += clamp(cafe.wifiMbps / 100, 0, 1) * 30;
-  if (cafe.quietScore > 0) total += clamp(cafe.quietScore / 5, 0, 1) * 30;
-  if (cafe.outletRate > 0) total += clamp(cafe.outletRate / 100, 0, 1) * 20;
-  // priceMedian 為 0 = 無價格資訊, 跳過
-  if (cafe.priceMedian > 0) total += (1 - clamp((cafe.priceMedian - 80) / 320, 0, 1)) * 10;
-  if (cafe.friendliness > 0) total += clamp(cafe.friendliness / 5, 0, 1) * 10;
+  if (isKnownMetric(cafe.wifiMbps)) total += clamp(cafe.wifiMbps / 100, 0, 1) * 30;
+  if (isKnownMetric(cafe.quietScore)) total += clamp(cafe.quietScore / 5, 0, 1) * 30;
+  if (isKnownMetric(cafe.outletRate)) total += clamp(cafe.outletRate / 100, 0, 1) * 20;
+  // priceMedian 為 null = 無價格資訊, 跳過
+  if (isKnownMetric(cafe.priceMedian)) total += (1 - clamp((cafe.priceMedian - 80) / 320, 0, 1)) * 10;
+  if (isKnownMetric(cafe.friendliness)) total += clamp(cafe.friendliness / 5, 0, 1) * 10;
   return Math.round(total);
 }
 
@@ -54,7 +70,7 @@ export function canAccessCafe(_index: number, _unlockUntil?: string | null, _now
 
 /**
  * 篩選咖啡廳
- * 0 評分 = 未知, 視為「通過」篩選
+ * 未設定門檻時顯示全部；有設定門檻時，未知資料不視為符合。
  */
 export function filterAndSortCafes(cafes: Cafe[], filters: CafeFilters): Cafe[] {
   const query = filters.query.trim().toLocaleLowerCase();
@@ -67,14 +83,14 @@ export function filterAndSortCafes(cafes: Cafe[], filters: CafeFilters): Cafe[] 
       const haystack = `${cafe.name} ${cafe.address} ${cafe.cityName} ${extra}`.toLocaleLowerCase();
       return haystack.includes(query);
     })
-    .filter((cafe) => cafe.wifiMbps === 0 || cafe.wifiMbps >= filters.minWifi)
-    .filter((cafe) => cafe.quietScore === 0 || cafe.quietScore >= filters.minQuiet)
-    .filter((cafe) => cafe.outletRate === 0 || cafe.outletRate >= filters.minOutlets)
+    .filter((cafe) => filters.minWifi === 0 || (isKnownMetric(cafe.wifiMbps) && cafe.wifiMbps >= filters.minWifi))
+    .filter((cafe) => filters.minQuiet === 0 || (isKnownMetric(cafe.quietScore) && cafe.quietScore >= filters.minQuiet))
+    .filter((cafe) => filters.minOutlets === 0 || (isKnownMetric(cafe.outletRate) && cafe.outletRate >= filters.minOutlets))
     .sort((left, right) => {
       if (filters.sortBy === 'wifi') {
-        if (left.wifiMbps === 0 && right.wifiMbps === 0) return 0;
-        if (left.wifiMbps === 0) return 1;
-        if (right.wifiMbps === 0) return -1;
+        if (!isKnownMetric(left.wifiMbps) && !isKnownMetric(right.wifiMbps)) return 0;
+        if (!isKnownMetric(left.wifiMbps)) return 1;
+        if (!isKnownMetric(right.wifiMbps)) return -1;
         return right.wifiMbps - left.wifiMbps;
       }
       if (filters.sortBy === 'verified') return right.verifierCount - left.verifierCount;
@@ -95,7 +111,8 @@ export function median(values: number[]): number {
   return sorted.length % 2 === 0 ? (sorted[middle - 1] + sorted[middle]) / 2 : sorted[middle];
 }
 
-export function formatRelativeDate(value: string, now = new Date()): string {
+export function formatRelativeDate(value: string | null, now = new Date()): string {
+  if (!value) return '尚無資料';
   const millisecondsPerDay = 86_400_000;
   const days = Math.max(0, Math.floor((now.getTime() - new Date(value).getTime()) / millisecondsPerDay));
   return days === 0 ? '今天驗證' : `${days} 天前驗證`;
@@ -207,8 +224,8 @@ export function buildAdminStats(cafes: Cafe[]): AdminStats {
 export function createVerification(cafe: Cafe, input: VerificationInput): Cafe {
   const oldCount = cafe.verifierCount || 0;
   const newCount = oldCount + 1;
-  const avg = (old: number, val: number) =>
-    oldCount === 0 ? val : (old * oldCount + val) / newCount;
+  const avg = (old: CafeMetric, val: number) =>
+    oldCount === 0 || !isKnownMetric(old) ? val : (old * oldCount + val) / newCount;
 
   return {
     ...cafe,

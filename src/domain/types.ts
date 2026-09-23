@@ -1,5 +1,7 @@
 export type CafeStatus = 'active' | 'pending_close' | 'closed';
 export type SortMode = 'workScore' | 'wifi' | 'verified';
+export type CafeMetric = number | null;
+export type EvidenceStatus = 'imported' | 'partial' | 'verified' | 'stale';
 
 export interface City {
   id: string;
@@ -21,8 +23,8 @@ export interface Review {
   createdAt: string;
 }
 
-// 擴展 Cafe 欄位: 加上 phone/website/brand/hasWifi 等公開資訊
-// wifiMbps 等評分欄位可以是 0 (= 未知; 介面顯示「尚無評分」)
+// 擴展 Cafe 欄位: 加上 phone/website/brand/hasWifi 等公開資訊。
+// 工作條件欄位使用 null 表示「尚未觀察」；0 是一個實際數值，不再拿來當未知值。
 export interface Cafe {
   id: string;
   name: string;
@@ -33,18 +35,18 @@ export interface Cafe {
   countryCode: string;
   lat: number;
   lng: number;
-  wifiMbps: number;
-  quietScore: number;
-  outletRate: number;
-  priceMedian: number;
-  friendliness: number;
+  wifiMbps: CafeMetric;
+  quietScore: CafeMetric;
+  outletRate: CafeMetric;
+  priceMedian: CafeMetric;
+  friendliness: CafeMetric;
   verifierCount: number;
   status: CafeStatus;
   hours: string;
   tags: string[];
   reviews: Review[];
   createdAt: string;
-  lastVerifiedAt: string;
+  lastVerifiedAt: string | null;
   // 公開版擴展欄位
   phone?: string | null;
   website?: string | null;
@@ -52,7 +54,13 @@ export interface Cafe {
   hasWifi?: boolean;
 }
 
-export type CafeInput = Omit<Cafe, 'id' | 'reviews' | 'createdAt' | 'lastVerifiedAt' | 'verifierCount' | 'status'>;
+export type CafeInput = Omit<Cafe, 'id' | 'reviews' | 'createdAt' | 'lastVerifiedAt' | 'verifierCount' | 'status' | 'wifiMbps' | 'quietScore' | 'outletRate' | 'priceMedian' | 'friendliness'> & {
+  wifiMbps: number;
+  quietScore: number;
+  outletRate: number;
+  priceMedian: number;
+  friendliness: number;
+};
 
 export interface ReviewInput {
   author: string;
