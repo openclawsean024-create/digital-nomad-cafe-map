@@ -1,46 +1,65 @@
-# Sprint Status
+# STATUS — digital-nomad-cafe-map（Cafework）
 
-## Current v4 implementation milestone · 2026-09-23
+> 更新：2026-11-16｜基準 commit：`main` @ `b986d20`
+> 本次為**文件重建（PRD v5.0、M1 GOAL），尚未開發**。舊版 Stage 4／5 與 v4 milestone 紀錄可由 git 歷史查閱。
 
-- State: **approved prototype implemented and locally verified; not production-ready**.
-- Product contract: `PRD/SPEC.md` v4.0.
-- UI contract: `PRD/UI-SPEC.md` v4.0.
-- Standalone prototype: `dashboard.html` (Cafework exploration flow; no generic dashboard remains).
-- Formal React page rewrite: **implemented by MiniMax multi-agent team and independently rechecked locally**.
-- Current truth: 4,357 imported OSM records, but most work-condition fields are unverified. The prototype renders unknown values explicitly and makes no live-availability or recommendation claim.
-- Verification evidence for this milestone: `npm run test` → 189/189 passed; `npm run typecheck` → exit 0; `npm run build` → exit 0 with 5 static routes; fresh dev browser smoke → Leaflet map mounted with no console errors. `npm ci` requires `--legacy-peer-deps` because of the existing React 19 / react-leaflet React 18 peer mismatch.
-- Deployment: release action requested; GitHub/Vercel/Notion SHA synchronization remains pending until the release workflow completes.
+## 目前狀態
 
-The historical Stage 4/5 notes below describe the prior implementation rounds and are not the current product-readiness status.
+- 商業評估：完成度 40／100、獲利潛力低、**建議暫緩**（`PRD/SPEC.md` §0）。
+- 線上：Vercel `digital-nomad-cafe-map.vercel.app` 首頁 HTTP 200（v4 探索頁）；GitHub Pages 版 HTML 200 但 JS 資源 404（2026-11-16 curl 實測）。
+- 資料：4,357 筆 OSM 咖啡廳（抓取日 2026-08-07，22 個縣市），**已驗證 0 筆**。
+- 品質閘門：`ci.yml` 從未成功執行；`deploy.yml` 不跑測試即部署；無 lint script。
+- 測試：20 個測試檔、189 個案例（原始碼計數，**未在本機執行**；本機無 node）。
+- 候選併入 `nomad-cafe-map`：只讀盤點完成；無測試、含疑似捏造資料、RLS 幾乎全開；僅搬 schema 概念與連鎖切換 UI 概念（`PRD/SPEC.md` §12）。
 
-- Project: digital-nomad-cafe-map
-- Started: 2026-07-19
-- State: **Stage 5 pilot-ready done** (2026-08-29 verified — **8/8 deliverables shipped**, deliverable 8/8 = full verification done at Round 9); Stage 4 production deployment **done** (2026-08-29 verified); **Stage 5 deliverable 1/8 (/landing) shipped 2026-08-29**; **Stage 5 deliverable 2/8 (/verify) shipped 2026-08-29**; **Stage 5 deliverable 3/8 (/admin) shipped 2026-08-29**; **Stage 5 deliverable 4/8 (paywall demo upgrade) shipped 2026-08-29**; **Stage 5 deliverable 5/8 (city reminder cron template + Resend mock email template) shipped 2026-08-29**; **Stage 5 deliverable 6/8 (FOUNDER_CHECKLIST.md) shipped 2026-08-29**; **Stage 5 deliverable 7/8 (STATUS.md + PROJECT_STATE.md → Stage 5 ready) shipped 2026-08-29**; **Stage 5 deliverable 8/8 (full verification: tests/typecheck/build/6 URLs all 200 + byte-diff acknowledged) shipped 2026-08-29**
-- Build attempt 1: failed because the legacy root `app/` and required `src/app/` were both compiled after alias migration; legacy imports resolved against the new `src/` alias and were missing.
-- Remediation: retired the legacy root App Router and kept `src/app/` as the single Next.js 16 entry point.
-- Local evidence (re-verified 2026-08-29 after Stage 5 Round 7 cron + email): **136/136** vitest tests pass (was 109/109 pre-cron; +27 new in 3 files: `src/lib/email-template.test.ts` +12, `src/lib/cron-reminder-template.test.ts` +9, `src/app/cron/reminder-dry-run/page.test.tsx` +6); strict TypeScript pass (`tsc --noEmit` exit 0); `next build` exit 0 with **5** static routes (`/`, `/landing`, `/verify`, `/admin`, `/cron/reminder-dry-run`, `_not-found`, `icon.svg`).
-- Canonical sprint workspace: **/Users/sean/Program/digital-nomad-cafe-map** (the prior `/tmp/digital-nomad-cafe-map-dev` path referenced in earlier docs is no longer present in this environment; git history is intact on `main`).
-- GitHub: `openclawsean024-create/digital-nomad-cafe-map` @ branch `main` @ pending Round 7 commit (HEAD = 2026-08-29 ~20:50 +0800, by `Hermes Agent <hermes@minimax.ai>`; pushed via `gh workflow run`).
-- Vercel canonical project: `digital-nomad-cafe-map`
-  - **Production URL**: https://digital-nomad-cafe-map.vercel.app/  → HTTP 200, served by Vercel edge (`x-vercel-cache: HIT`), content identical to GitHub Pages mirror. Note: Vercel has not auto-deployed from GitHub for this project — only the canonical URL was last deployed manually; the GitHub Pages mirror is now ahead of Vercel for the `/landing` route.
-  - Asset (icon.svg) → HTTP 200, age 0 (fresh).
-- GitHub Pages mirror: https://openclawsean024-create.github.io/digital-nomad-cafe-map/ → HTTP 200. `/landing/` route live at HTTP 200 (10,570 bytes) since Round 2; `/verify/?founder=1` route live at HTTP 200 since Round 4. GitHub Pages mirror is the canonical Stage 5 deployment target until Vercel CLI auth is restored.
-- Constraint: no Notion changes
-- P0 features verified live (HTML inspection of both URLs):
-  1. City selector + 5-dim filter — cities visible: 台北/新北/台中/台南/高雄/桃園/新竹/基隆/屏東/金門; metric labels WiFi / 安靜 / 插座 / 價格 / 友善 all render.
-  2. 5-dim rating cards — `.cafe-card` structure with `.metrics > .metric` × 3 visible (WiFi/安靜/插座; price/friendliness inferred from additional card sections).
-  3. Map + list view toggle — `nav.mobile-tabs` with buttons 篩選 / 地圖 / 清單 present; Leaflet marker rendering path wired.
-  4. Free-3-store paywall demo — "顯示前 200 間，總共 4357 間符合條件" footer present (top-200 visible by default, full dataset behind demo entitlement).
-  5. On-site verification flow — schema and entitlement fallback wired (`src/lib/entitlement.ts`), running in demo mode because no credentials.
-- **Stage 5 SPEC §15.13 deliverables progress** (Day 1 ready target):
-  - [x] **Deliverable 1/8 — /landing route live** (Round 2 commit `92f52661`): SPEC hero copy "Find a cafe that actually lets you work…" + 5-dim demo cards (WiFi/安靜/插座/價格/友善) + email capture mock form (writes to localStorage `deskbound-pilot-emails-v1`) + back link to /. GitHub Pages URL `/landing/` HTTP 200. Email form is mock-only — no Mailchimp/Resend wiring (credentials not provided per boundary §4).
-  - [x] **Deliverable 2/8 — /verify route live** (Round 4 commit pending): founder-only gating via `?founder=1` query-flag or env-match (`NEXT_PUBLIC_FOUNDER_EMAIL`) via `src/lib/founder-auth.ts` (Round 3) + speedtest mock `src/components/SpeedtestMock.tsx` (random 30–150 Mbps, 1500ms duration, progress bar) + 5-dim form `src/components/VerifyForm.tsx` (WiFi Mbps + 4 rating groups with 1–5 radio: 安靜/插座/價格/友善 — labels preserved per ADR-003 consistency) + photo upload schema (`<input type="file" accept="image/*">`, data-URL preview, no real upload). Submit writes `deskbound-verifications-v1` payload to localStorage. Non-founder visitors see founder-only access denied + `?founder=1` hint. +12 new vitest tests, 87/87 total green. All mock-only; no Supabase / speedtest / Stripe / Resend calls.
-  - [x] **Deliverable 3/8 — /admin route live** (Round 5 commit `0b92ca9b`): founder-only gating via `?founder=1` query-flag or env-match (re-using `src/lib/founder-auth.ts` Round 3 utility) + pilot metrics dashboard `src/components/AdminDashboard.tsx` with 4 metric cards (emails / reach / cafes / paid, all rendering `—（unverified）` placeholder, no fake data) + 1 recharts `BarChart` mock (4 bars, height 0, fixed domain `[0, 100]`, `isAnimationActive={false}` for SSR safety). Non-founder visitors see founder-only access denied + `?founder=1` hint. +4 new vitest tests, 91/91 total green. All mock-only; recharts is the first dependency to be used in `src/`.
-  - [x] **Deliverable 4/8 — paywall demo upgrade** (Round 6 commit pending): demo paywall banner on `/` over the filter slice (open-access invariant preserved — children always render). `src/lib/paywall.ts` `evaluateDailyPaywall({viewedCount, unlockUntil, now})` pure function with `FREE_DAILY_LIMIT = 3` returning `{allowed, reason: 'within-free-tier'|'unlocked'|'daily-limit-exceeded', remainingViews}`. `src/components/PaywallGate.tsx` banner shows "剩 N 次免費瀏覽（3/天）" within free tier, "已達每日 3 間免費瀏覽上限" when exceeded, "✓ 已解鎖 · 30 天" once unlocked. `src/components/StripeCheckoutMock.tsx` CTA "Demo：假裝付款成功（寫入 localStorage）" that calls `saveDemoUnlock(30)` from `src/lib/storage.ts` — **no fetch, no Stripe.js, no real network** (mock-only boundary preserved). `<PaywallGate>` wraps the `<aside className="filters">` slice in `CafeExplorer.tsx`; `viewedCount` increments on each `selectCafe()` click. Re-uses existing `deskbound-unlock-until-v1` localStorage key (no new key invented). `canAccessCafe(*, null, *) === true` signature preserved — all 91 prior tests still pass + 18 new = 109/109 green. 4 static routes unchanged (paywall wraps existing `/`, no new route). `globals.css` appended 23 lines of `paywall-*` styles. Live HTML inspection confirms `data-state="within-free-tier"` SSR-rendered above filter slice.
-  - [x] **Deliverable 5/8 — city reminder cron template + Resend mock email template** (Round 7 commit `820b61e6`): `src/lib/email-template.ts` `buildReminderEmail({city, cafeCount, frequencyDays})` pure function → `{subject, html, text}` envelope (Resend-ready). Subject template `"Cafework · {city} 本週新增 N 間咖啡廳（每 K 天）"` with explicit empty-state copy when `cafeCount === 0` (no fake data). HTML body includes SPEC hero copy + city block + cadence + mock Resend footer + unsubscribe link; HTML-escapes the city name (XSS-safe). `src/lib/cron-reminder-template.ts` `generateReminderPayload({subscribers, cities, cityIds, runDate, frequencyDays, newCafeCounts?})` pure function → `{runDate, frequencyDays, totalSubscribers, totalEmails, payloads: [{city, cafeCount, runDate, email, recipients}]}`. Skips cities with zero subscribers. `src/app/cron/reminder-dry-run/page.tsx` founder-only dry-run page (re-uses Round 3 `isFounder` utility) — founder sees city checkboxes (pilot cities only) + cadence select (7/14/30 days) + summary stats + per-city payload preview (subject + text + html) + raw Resend-ready JSON textarea. `scripts/cron-dry.ts` CLI entry + `npm run cron:dry` script + `tsx` dev dep. Non-founder sees access-denied + `?founder=1` hint. +27 new vitest tests, 136/136 total green. All mock-only; no Resend SDK / fetch / real email send.
-  - [x] **Deliverable 6/8 — FOUNDER_CHECKLIST.md shipped** (Round 8 commit pending): workspace root file with Pre-flight + Day 1-3 landing launch (Go gate ≥ 100 email) + Day 2-4 community post (Go gate ≥ 1000 reach + ≥ 30 留言) + Day 3-7 5 場訪談 (Go gate ≥ 3/5 付費意願) + Day 4-10 Taipei 50 店 seed (Go gate ≥ 50 店) + Day 8-14 Pilot 付費 (Go gate ≥ 5 付費) + Day 14 go/no-go 決策 + 附錄 A.1 Threads 草稿 + A.2 Reddit r/digitalnomad 草稿 + A.3 Indie Hackers 草稿 + 附錄 B 訪談大綱 5 題 + 附錄 C Taipei 50 店 seed per-store template. `.gitignore` updated to remove FOUNDER_CHECKLIST.md from ignore list (was unintentionally ignored by commit 397413bf).
-  - [x] **Deliverable 7/8 — STATUS.md + PROJECT_STATE.md → Stage 5 ready shipped** (Round 8 commit pending): State line updated to "Stage 5 pilot-ready done"; both files mark Stage 5 as the current stage. PROJECT_STATE.md Round 8 verification evidence section appended with FOUNDER_CHECKLIST.md byte size + .gitignore change.
-  - [x] **Deliverable 8/8 — Full verification shipped** (Round 9 commit pending): re-verified `npm run test` 136/136 in 4.97 s; `npm run typecheck` exit 0; `npm run build` exit 0 with 5 static routes; 6/6 production URLs HTTP 200 (Vercel canonical `/` + GitHub Pages mirror `/` + `/landing/` + `/verify/` + `/admin/` + `/cron/reminder-dry-run/`); byte-diff 139,121 vs 140,361 bytes acknowledged (Vercel cache older than Round 6 paywall change; GitHub Pages mirror is canonical Stage 5 deploy target). PROJECT_STATE.md Round 9 verification evidence section appended. 5-dim labels WiFi/安靜/插座/價格/友善 preserved across all routes; canAccessCafe(*, null, *) === true signature preserved; 136/136 tests still green; mock-only boundary preserved (no env credentials, no external service calls).
-- Known production integration boundary (unchanged): Supabase / Stripe / Resend / speedtest credentials were not supplied. UI degrades to local persistence + explicit demo entitlement; backend schema in `supabase/`. All metric values render as `—` (unverified) because no real verification data exists yet. Email capture on /landing and verification submission on /verify are mock-only and do NOT call any external service. FOUNDER_CHECKLIST.md explicitly calls out this boundary in Pre-flight + every Day checklist.
-- Test count note: re-verified numbers above (136/136 tests, 5 static routes + _not-found + icon.svg) are authoritative as of Stage 5 Round 7.
-- Stage 5 ready baseline (re-verified 2026-08-29 after Round 9 final smoke): **8/8 deliverables shipped**; 136/136 vitest tests pass; strict TypeScript pass; `next build` exit 0 with 5 static routes; 6 production URLs (Vercel canonical `/` + GitHub Pages mirror `/`, `/landing/`, `/verify/`, `/admin/`, `/cron/reminder-dry-run/`) all HTTP 200; FOUNDER_CHECKLIST.md committed at workspace root (13,156 bytes, 257 lines, not gitignored). Stage 5 SPEC §15.13 Day 1 ready target **fully achieved**.
+## FR 對照
+
+| FR | 名稱 | 優先 | 狀態 |
+|---|---|---|---|
+| FR-001 | 搜尋 | P0 | 已實作 |
+| FR-002 | 縣市範圍 | P0 | 已實作 |
+| FR-003 | 快速篩選 | P0 | 部分（Wi-Fi 50+ 與不限時判斷誤導） |
+| FR-004 | 排序 | P1 | 部分（「最近更新」實為驗證人數） |
+| FR-005 | 證據狀態 | P0 | 部分（無 `stale`） |
+| FR-006 | 詳細資料 | P0 | 部分（無補資料入口） |
+| FR-007 | 地圖清單同步 | P0 | 部分（地圖只畫 200 間；Pages 版 JS 404） |
+| FR-008 | 公開補資料＋匯出 | P0 | 未實作 |
+| FR-009 | 手機版 | P0 | 已實作（未在本機驗證） |
+| FR-010 | 公開免費 | P0 | 部分（Stage 5 mock 路由與依賴仍在） |
+| FR-011 | 來源與授權標示 | P0 | 部分 |
+| FR-012 | 可重現匯入 | P0 | 未實作 |
+| FR-013 | 首頁輕量載入 | P0 | 未實作（4.29 MB） |
+| FR-014 | 驗證資料後端 | P1 | 未實作 |
+| FR-015 | 檢舉與審核 | P1 | 未實作 |
+| FR-016 | 連鎖／獨立切換 | P1 | 未實作（候選 repo 有，資料不可用） |
+| FR-017 | 資料新鮮度 | P1 | 未實作 |
+| FR-018 | 店家認領與贊助刊登 | P2 | 未實作 |
+| FR-019 | 聯盟連結 | P2 | 未實作 |
+| FR-020 | 帳號與收藏 | P2 | 未實作 |
+| FR-021 | 城市 email 提醒 | P2 | 部分（mock） |
+| FR-022 | 網速實測 | P2 | 部分（mock） |
+| FR-023 | 深色模式 | P2 | 未實作（候選 repo 有） |
+| FR-024 | 英文介面 | P2 | 未實作 |
+
+## M1 進度
+
+| AC | 標題 | 狀態 |
+|---|---|---|
+| AC-001 | 品質閘門真正擋得住失敗 | 未開始 |
+| AC-002 | 部署可正常載入互動功能 | 未開始 |
+| AC-003 | 篩選與排序不誤導 | 未開始 |
+| AC-004 | 資料來源可追溯、可重現 | 未開始 |
+| AC-005 | 首頁輕量載入 | 未開始 |
+| AC-006 | 公開補資料（只存本機）與匯出 | 未開始 |
+| AC-007 | 公開站只保留探索功能 | 未開始 |
+| AC-008 | 文件一致、無假資料與憑證 | 未開始 |
+
+## 待決事項（Sean）
+
+1. 接受暫緩、改為封存，或推翻並啟動 M1。
+2. M2 商業閘門數字（台北 ≥ 50 間驗證、4 週流量成長、≥ 3 家店家詢問或 ≥ 1 個聯盟計畫）。
+3. 正式網址保留 Vercel 或 GitHub Pages。
+4. 舊根目錄與 Stage 5 文件刪除或移至 `archive/`。
+5. 是否與 `rv-supply-map` 共用 POI／證據模組。
+6. 是否封存 `nomad-cafe-map`。
+7. 收費前是否諮詢 ODbL 法律意見。
