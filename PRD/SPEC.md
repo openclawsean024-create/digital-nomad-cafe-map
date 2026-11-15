@@ -1,146 +1,235 @@
-# Cafework Product Requirements · v4.0
+# Cafework 遠距工作咖啡廳地圖 — 產品需求規格 v5.0
 
-> 整頓版 · 2026-09-21 · prototype milestone
-> 本檔取代先前互相矛盾的 v3.0 / Stage 5 文件，作為目前唯一產品契約。
+> 版本：v5.0（商業評估＋PRD 重建）｜更新日期：2026-11-16｜狀態：文件重建，尚未依本版開發
+> 主 repo：`openclawsean024-create/digital-nomad-cafe-map`（預設分支 `main`，重建基準 commit `b986d20`，公開）
+> 候選併入 repo：`openclawsean024-create/nomad-cafe-map`（`main`，commit `95ea66d`，私人，只讀）
+> 取代：v4.0（2026-09-21）。v4.0 的 UI 契約仍保留在 `PRD/UI-SPEC.md`，本版不改動該檔；舊版內容可由 git 歷史查閱。
 
-## 1. Product truth
+本文件的「已實作／部分／未實作」皆依 2026-11-16 實際閱讀兩個 repo 的原始碼、GitHub Actions 執行紀錄與線上網址回應為準，不以 README 推論。**本機無法執行 node（環境限制），所有 `npm` 指令皆「未在本機執行」**；測試數量是以原始碼計數（20 個測試檔、189 個 `it/test`），非執行結果。README 與程式不一致之處列於 §13。
 
-### 1.1 Product
+---
 
-**Cafework** helps a digital nomad decide whether a cafe is suitable for focused work before walking there. The first release is a free, public directory with a map, a searchable list, and transparent work-condition evidence.
+## §0 評估結論
 
-### 1.2 Current state
+| 項目 | 結論 |
+|---|---|
+| 現況完成度 | **40／100**（依程式實況，見下方拆解） |
+| 獲利潛力 | **低** |
+| 目標客群 | 在台灣找地方工作的自由工作者、遠距上班族、外籍數位遊牧；次要為在地補資料的貢獻者 |
+| 獲利模式（選定） | **免費增值**：使用者端永久免費；增值層為店家付費「工作友善」進階刊登，聯盟連結為補充收入。三者都需流量才成立 |
+| 建議 | **暫緩** |
 
-- Imported directory: 4,357 OSM cafe records across 22 Taiwan administrative areas.
-- Verification state: most records have no community measurements. The product is not yet safe to present as a reliable live recommendation service.
-- Runtime: Next.js static export with a local-first contribution path; backend integrations are not production-ready.
-- This milestone: reset the product contract, approve the standalone visual prototype, and implement the approved explorer in the formal React surface. The implementation is verified locally; production readiness is still blocked by missing real verification data and backend integrations.
+### 完成度拆解（40／100）
 
-### 1.3 Problem
+- 已可用（約 +40）：公開探索頁（搜尋、縣市、4 個快速篩選、3 種排序、清單、Leaflet 地圖、詳細資料 dialog、手機分頁）、可為 null 的資料模型、「未驗證不顯示數字」的誠實原則、189 個單元／元件測試、靜態 export 已部署到 Vercel。
+- 未完成或有缺陷：
+  - **資料**：4,357 筆 OSM 咖啡廳中，**驗證筆數為 0**（`verifierCount` 全部為 0，五個工作條件欄位全部是 0 → 轉為 null）。產品核心價值「能不能工作」目前完全沒有資料。
+  - **補資料流程**：公開頁沒有「我到過這裡，補一筆」（FR-008 未實作）；`/verify` 只是 `?founder=1` 就能進入的 mock。
+  - **後端**：沒有。Supabase schema 只有檔案，程式不呼叫。
+  - **品質閘門**：`ci.yml` 在 GitHub 上 2 次執行全部失敗且沒有建立任何 job（工作流程啟動失敗）；`deploy.yml` 不跑測試就部署；沒有 lint script。
+  - **部署**：GitHub Pages 版 HTML 引用 `/_next/...` 根路徑，實測 JS 回 404（需 `/digital-nomad-cafe-map/_next/...` 才 200），互動功能在 Pages 版無法運作；首頁 HTML 達 4.29 MB（整份資料嵌入頁面）。
+  - **資料可重現性**：`src/data/cafes-data.ts` 標示「從 Overpass API 自動生成」，但產生腳本不在 repo。
 
-General map products answer “where is a cafe?” but not “can I work there for two hours?”. The missing signals are Wi-Fi, outlets, noise, stay limits, price, and evidence freshness. Cafework earns trust by showing what is known, what is unknown, and how a record was verified.
+### 獲利潛力「低」的理由
 
-### 1.4 Primary user
+1. **付費意願低的使用者**：找咖啡廳是低頻、低單價決策，替代品（Google 地圖評論、社群推薦、既有免費網站）零成本。v3 曾假設 USD 4.99／月訂閱，從未驗證，且與 v4「公開免費」原則衝突。
+2. **資料冷啟動是主要成本，不是程式**：價值取決於「實地驗證」的 Wi-Fi、插座、安靜、限時資料。這需要人力跑店或社群貢獻，目前為 0 筆；程式再完整也無法替代。
+3. **既有免費競品**：台灣已有「Cafe Nomad 咖啡廳遊牧民族」（cafenomad.tw）以社群評分 Wi-Fi、插座、安靜、限時等欄位，並提供公開 API（**規模、資料筆數與 API 授權條款待確認**）。Cafework 的差異只在「誠實顯示未驗證」與 UI，不足以構成付費理由。
+4. **三種收入都需要流量**：展示廣告需要大量瀏覽；聯盟連結（eSIM、旅平險、共享空間日票、筆電周邊等）佣金比例與可加入的計畫**待確認**；店家付費刊登需要業務開發，小型咖啡廳預算有限，且付費排序會削弱「證據優先」的信任定位，必須明確標示「贊助」。
+5. **OSM 資料不能變成獨家資產**：見 §7，ODbL 的相同方式分享條款可能要求公開由 OSM 衍生的資料庫，資料護城河有限。
 
-Freelancer, remote worker, or digital nomad in an unfamiliar Taiwan city who needs a workable cafe in the next 30 minutes.
+### 建議：暫緩
 
-Secondary users are local contributors who have just visited a cafe and can add a small, honest verification.
+工程品質在同批專案中算完整，但瓶頸是資料與需求驗證，不是程式。建議：
 
-## 2. Goals and non-goals
+- **維持現有 Vercel 靜態站上線**（成本近 0），不投入付費、帳號、後端開發。
+- 若 Sean 想保留這個產品，只做 M1「可信免費目錄整頓」（修品質閘門、修部署、修誤導性篩選、加入本機補資料與匯出），讓 Sean 能用最低成本手動跑一次「台北 50 間店」驗證試點。
+- **進入 M2 的商業閘門（建議值，待 Sean 確認）**：手動驗證 ≥ 50 間台北咖啡廳、連續 4 週自然流量有成長、至少 3 家店家主動詢問刊登或至少 1 個聯盟計畫核准。未達成則封存。
+- 若 Sean 判斷不想投入人力跑店，則建議直接**封存**（保留 repo 與靜態站，不再開發）。
 
-### Goals
+### 主 repo 是否為最佳基礎
 
-1. Help a user narrow the directory to a short list in under 30 seconds.
-2. Make evidence status more prominent than an invented score.
-3. Make the same search usable as a list when the map is unavailable.
-4. Give a visitor a low-friction path to add or update work-condition data.
-5. Establish a visual language that can be implemented in the existing Next.js app after review.
+**是。** `digital-nomad-cafe-map` 有完整測試、純函式 domain、可為 null 的資料模型與誠實顯示原則；`nomad-cafe-map` 無任何測試、資料大量為捏造（見 §12），且 RLS 政策幾乎全開。不建議改選。
 
-### Non-goals for v4
+### 與其他專案的重疊
 
-- No account, login, subscription, checkout, paywall, or premium unlock.
-- No claim of real-time opening hours, live Wi-Fi availability, or guaranteed seating.
-- No global coverage promise; Taiwan is the current data boundary.
-- No admin analytics surface in the public exploration flow.
-- No real email delivery, Stripe, speed-test API, or shared review persistence in the prototype.
-- No rewrite of legacy data/import modules as part of the visual reset.
+- `openclawsean024-create/rv-supply-map`（露營車供水供電地圖）同樣是「地點 POI＋社群補充條件」的地圖產品。兩者可共用：OSM 匯入流程、證據狀態模型、補資料與審核流程。若兩者都要繼續，建議抽出共用模組，而不是各自重做。
+- brief 未指定 sean0407 帳號的重疊專案；以名稱搜尋 sean0407 帳號未找到 cafe／nomad／map 相關 repo。
 
-## 3. User journeys
+---
 
-### J1 · Find a place for deep work
+## 1. 問題
 
-1. User opens Cafework.
-2. User searches a city or chooses a city scope.
-3. User applies one or two high-signal filters.
-4. User scans list cards with evidence status and unknown fields.
-5. User opens a cafe detail and decides whether to navigate there.
+一般地圖回答「哪裡有咖啡廳」，但遠距工作者真正要知道的是「這家店能不能讓我工作兩小時」：Wi-Fi 速度、插座、噪音、是否限時、價位，以及這些資訊多新、誰驗證過。現有評論多為口味與裝潢，工作條件散落在文字評論中，且常過時。
 
-Success: a candidate is selected without needing to infer meaning from a generic star rating.
+## 2. 目標客群
 
-### J2 · Verify a cafe after visiting
-
-1. User opens a cafe detail.
-2. User selects `我到過這裡，補一筆`.
-3. User enters only observed conditions.
-4. UI confirms local capture and clearly states whether sync is available.
-
-Success: the user understands what was recorded and what was not published.
-
-### J3 · Recover from incomplete data
-
-1. User sees `尚無資料` for a metric.
-2. UI explains that the field is unverified.
-3. User can filter on known values without treating unknown as zero.
-
-Success: missing data reduces confidence, but does not masquerade as a negative or a measured number.
-
-## 4. Functional requirements
-
-| ID | Requirement | Priority | Acceptance |
-|---|---|---:|---|
-| FR-001 | Search by cafe name, address, or city | P0 | Results update without a page reload and empty state explains next step |
-| FR-002 | Scope by Taiwan city/area | P0 | Scope is visible in the control row and card metadata |
-| FR-003 | Quick filters for Wi-Fi, outlets, quiet, and stay limit | P0 | Active filters are removable and unknown values are not treated as matches |
-| FR-004 | Sort by work fit or freshness where supported | P1 | Labels describe the actual sort behavior |
-| FR-005 | Cafe card with evidence state | P0 | Card exposes status, known metrics, unknown metrics, source/freshness |
-| FR-006 | Cafe detail view | P0 | Detail view includes all five dimensions and a contribution CTA |
-| FR-007 | Map/list parity | P0 | Selecting a marker and selecting a card open the same detail state; list works without map |
-| FR-008 | Local contribution flow | P1 | Form records only observed fields and reports local-only behavior truthfully |
-| FR-009 | Responsive/mobile exploration | P0 | No horizontal overflow at 390px; list-first mobile layout remains usable |
-| FR-010 | Public, free exploration | P0 | No login, payment, or upgrade gate appears in the public flow |
-
-## 5. Data contract and trust model
-
-### 5.1 Five dimensions
-
-| Dimension | Meaning | Unknown display |
+| 類型 | 描述 | 備註 |
 |---|---|---|
-| Wi-Fi | observed download speed in Mbps | `尚無資料` |
-| 安靜 | observed focus/noise level, 1–5 | `尚無資料` |
-| 插座 | approximate seat/socket availability | `尚無資料` |
-| 價格 | observed median spend in NTD | `尚無資料` |
-| 友善 | tolerance for longer work sessions, 1–5 | `尚無資料` |
+| Primary | 在台灣不熟悉的城市、30 分鐘內需要找到可工作座位的自由工作者、遠距上班族 | 人數、使用頻率待確認 |
+| Secondary | 來台的外籍數位遊牧 | 需英文介面（未實作）；規模待確認 |
+| 貢獻者 | 剛去過某家店、願意補一筆實測資料的人 | 動機與留存待驗證 |
+| 付費方（假設） | 希望吸引久坐客群、非尖峰時段客流的獨立咖啡廳 | 付費意願完全未驗證 |
 
-Imported OSM presence is not verification. A work score may be calculated only when the weighting rules and required inputs are defined by the data layer; otherwise the UI displays `— 未驗證`.
+## 3. 獲利模式
 
-### 5.2 Evidence states
+選定：**免費增值**（使用者免費＋店家增值刊登），聯盟收入為補充。以下全部是**未驗證假設**，價格與佣金待確認。
 
-- `開放資料`: imported from OSM; location/name may still need review.
-- `部分驗證`: at least one community observation exists.
-- `已驗證`: the verification policy for all displayed core fields is satisfied.
-- `待重新確認`: evidence is stale or contradictory.
+| 收入來源 | 內容 | 前提 | 評估 |
+|---|---|---|---|
+| 店家進階刊登（增值層） | 店家認領頁面、上傳官方資訊（插座位置、限時規則、尖峰時段），列表標示「贊助」，不得改動社群實測數字 | 有穩定流量、刊登與實測數字分離 | 低～中；需業務開發 |
+| 聯盟連結 | eSIM、旅平險、共享空間日票、行動電源／筆電周邊 | 計畫核准、揭露聯盟關係 | 低；佣金待確認 |
+| 展示廣告 | 網站廣告聯播 | 大量瀏覽 | 低；會降低體驗 |
+| 使用者訂閱 | v3 曾假設 USD 4.99／月 | — | **不採用**：違反公開免費原則，且無付費證據 |
+| 資料授權 | 將實測資料授權給第三方 | 實測資料與 OSM 分開儲存（§7） | 長期選項，現階段不考慮 |
 
-The current prototype uses these states as visual labels but does not fabricate measured values.
+## 4. 競品與差異
 
-## 6. Non-functional requirements
+| 競品 | 類型 | 差異 | 出處 |
+|---|---|---|---|
+| Cafe Nomad 咖啡廳遊牧民族（cafenomad.tw） | 台灣社群評分的工作咖啡廳網站，有公開 API | 直接競品，先行者；Cafework 差異在證據狀態與「未知不補數字」 | 規模、API 條款**待確認** |
+| Google 地圖 | 通用地圖＋評論 | 覆蓋最廣但工作條件需從評論推斷 | — |
+| Nomad List（現 nomads.com）、Workfrom 等國際服務 | 全球數位遊牧資訊 | 台灣咖啡廳細節少；現況與條款**待確認** | 待確認 |
+| 社群貼文（Threads、PTT、FB 社團） | 口耳相傳 | 免費、即時但分散 | — |
 
-- Accessibility: WCAG 2.1 AA target; keyboard-visible focus; 44px touch targets.
-- Performance: first useful list should be readable quickly on a mid-range mobile device; avoid loading the whole directory into the initial DOM when formal implementation begins.
-- Reliability: list/search/filter must remain useful if map tiles or external APIs fail.
-- Privacy: do not send emails, photos, or reviews to an external service without an explicit backend contract and consent copy.
-- Content honesty: all prototype-only, mock, and local-only states are visible in the UI.
+差異化主張（待驗證）：**證據優先**——每個數字都有來源與時間，未驗證就顯示「尚無資料」。
 
-## 7. Acceptance criteria for this milestone
+## 5. 功能需求
 
-- **AC-001** — `PRD/SPEC.md` removes contradictory Stage 5/premium/global claims and states the current evidence boundary.
-- **AC-002** — `PRD/UI-SPEC.md` defines the information architecture, visual tokens, responsive behavior, content rules, and component states.
-- **AC-003** — `dashboard.html` is a product-specific Cafework prototype; no generic dashboard modules remain.
-- **AC-004** — Prototype demonstrates search, city scope, filters, sort, card selection, detail view, and contribution modal.
-- **AC-005** — Prototype visibly distinguishes imported/unknown/verified states and includes a prototype-only disclaimer.
-- **AC-006** — Prototype is usable at desktop and 390px widths without page-level horizontal overflow.
-- **AC-007** — Existing application tests, typecheck, and static build remain green; no production integration is claimed.
-- **AC-008** — Formal React page rewrite remains blocked until Sean confirms the prototype direction.
+狀態：已實作／部分／未實作；所在 repo：主＝`digital-nomad-cafe-map`、候＝`nomad-cafe-map`。
 
-## 8. Deferred implementation plan
+| ID | 需求 | 優先 | 狀態 | 所在 | 實況說明 |
+|---|---|---|---|---|---|
+| FR-001 | 以店名、地址、縣市、品牌搜尋 | P0 | 已實作 | 主 | `src/domain/cafes.ts` `filterAndSortCafes` |
+| FR-002 | 縣市範圍（22 個縣市） | P0 | 已實作 | 主 | `ExplorerToolbar` |
+| FR-003 | 快速篩選：Wi-Fi、插座、安靜、不限時；未知不視為符合 | P0 | 部分 | 主 | `wifi-50` 會把只有 OSM `wifi=yes`、無速度的店當作「50+ Mbps」；`no-time-limit` 用 `/24/` 比對營業時間，`10:00-24:00` 也會誤判為不限時（`src/domain/filter.ts`） |
+| FR-004 | 排序：工作條件、Wi-Fi、最近更新 | P1 | 部分 | 主 | 「最近更新」實際依 `verifierCount` 排序，與標籤不符 |
+| FR-005 | 卡片顯示證據狀態（開放資料／部分驗證／已驗證／待重新確認） | P0 | 部分 | 主 | `getEvidenceStatus` 從不回傳 `stale`，「待重新確認」無法出現 |
+| FR-006 | 詳細資料：五維、來源、補資料入口 | P0 | 部分 | 主 | 有五維與來源，無補資料按鈕；文案公開寫出 `?founder=1` 繞過方式 |
+| FR-007 | 地圖與清單同步，地圖失效時清單可用 | P0 | 部分 | 主 | 地圖只畫篩選結果前 200 間（`SSR_CAP`）；GitHub Pages 版 JS 404 |
+| FR-008 | 公開補資料（只填觀察到的欄位，本機儲存並可匯出） | P0 | 未實作 | 主 | 只有 founder-only mock `/verify` |
+| FR-009 | 手機版：390px 無水平捲動，清單優先 | P0 | 已實作（未在本機驗證） | 主 | STATUS 記載曾手動驗證 |
+| FR-010 | 公開、免費、免登入 | P0 | 部分 | 主 | 首頁無付費牆；但 `/landing`、`/admin`、`/verify`、`/cron/reminder-dry-run` 仍公開建置，`PaywallGate` 等孤兒元件與 `stripe`、`@supabase/*` 依賴仍在 |
+| FR-011 | 資料來源、授權、抓取日期標示與單筆 OSM 連結 | P0 | 部分 | 主 | 有 OSM 版權標示；無抓取日期、無單筆 OSM 連結、無「回報錯誤」 |
+| FR-012 | 可重現的 OSM 匯入腳本與資料版本 | P0 | 未實作 | 主 | 產生腳本不在 repo |
+| FR-013 | 首頁輕量載入（資料分檔、首屏 HTML < 500 KB） | P0 | 未實作 | 主 | 目前 4.29 MB |
+| FR-014 | 驗證資料後端同步（與 OSM 資料分表） | P1 | 未實作 | 主（schema）／候（API） | 主：`supabase/migrations` 未接線；候：`/api/venues` 以 service role 讀取 |
+| FR-015 | 檢舉與審核（錯誤資料、不當內容） | P1 | 未實作 | 主（schema） | `reports` 表只在 schema |
+| FR-016 | 連鎖／獨立切換 | P1 | 未實作（主）；已實作（候） | 候 | 候選以捏造的 `chains.json` 為資料；主可改用 OSM `brand` 欄位 |
+| FR-017 | 資料新鮮度與過期判定 | P1 | 未實作 | — | 與 FR-005 `stale` 相關 |
+| FR-018 | 店家認領與付費進階刊登（標示贊助） | P2 | 未實作 | — | M3 收入實驗 |
+| FR-019 | 聯盟連結區塊（揭露聯盟關係） | P2 | 未實作 | — | M3 |
+| FR-020 | 帳號與收藏 | P2 | 未實作 | 主（舊根目錄元件未編譯） | `components/FavoriteButton.tsx` 等不在 tsconfig include |
+| FR-021 | 城市新店 email 提醒 | P2 | 部分（mock） | 主 | `src/lib/email-template.ts` 僅產生 payload |
+| FR-022 | 網速實測 | P2 | 部分（mock） | 主 | `SpeedtestMock` 為亂數 |
+| FR-023 | 深色模式 | P2 | 未實作（主）；已實作（候） | 候 | 候 `page.tsx` theme 切換 |
+| FR-024 | 英文介面 | P2 | 未實作 | — | 外籍遊牧需求，待驗證 |
 
-After prototype confirmation:
+## 6. 非功能需求
 
-1. Fix the data model so unknown measurements remain nullable instead of being coerced to `0`.
-2. Replace the current explorer composition with the approved layout, keeping domain functions pure and tested.
-3. Add component tests for unknown states, filter semantics, modal focus/close behavior, and mobile navigation.
-4. Reconcile the duplicate legacy root modules and remove them only with a separate migration review.
-5. Run a real data-verification pilot before calling the product production-ready.
+- **誠實性**：未驗證欄位一律顯示「尚無資料」；篩選標籤必須與實際判斷邏輯一致；mock、本機儲存、試驗功能在 UI 上明示。
+- **效能**：首屏 HTML < 500 KB；資料依縣市分檔延遲載入；中階手機 4G 下清單可讀（具體秒數待量測）。
+- **可用性**：WCAG 2.1 AA 目標；鍵盤焦點可見；觸控目標 44px。
+- **可靠性**：地圖圖磚或外部服務失敗時，清單、搜尋、篩選仍可用。
+- **品質閘門**：lint、typecheck、test、build 在 CI 上真正執行且失敗會擋住部署；`npm ci` 不需 `--legacy-peer-deps`。
+- **成本**：M1 維持純靜態、零付費服務。
 
-## 9. Release gate
+## 7. 資料來源、授權與個資處理
 
-This milestone is complete only when the prototype is visually reviewed. It is not a deployment milestone. Do not update production URLs, Vercel, GitHub Pages, or the canonical Notion Project DB from this work.
+### 7.1 資料來源盤點
+
+| 來源 | 現況 | 合法性評估 |
+|---|---|---|
+| OpenStreetMap（Overpass API） | 主 repo 4,357 筆，抓取日 2026-08-07 | **可合法使用（含商業）**，條件是遵守 ODbL 1.0：①標示「© OpenStreetMap contributors」並連到版權頁（已在地圖與文案做到）；②若公開使用由 OSM 與自有資料「逐筆合併」的衍生資料庫，該衍生資料庫須以 ODbL 提供（相同方式分享）。自有實測資料若與 OSM 分開儲存、僅以 OSM ID 關聯，是否可視為「集合資料庫」而不受相同方式分享約束，**需法律確認**。Overpass 公共伺服器有使用限制，應低頻、手動匯入。 |
+| OSM 官方圖磚 `tile.openstreetmap.org` | 主 repo 地圖底圖 | OSM 圖磚使用政策僅適合低流量，禁止大量或商業依賴；正式上線應改用付費或自架圖磚供應商（費用待確認） |
+| 社群實測（使用者補資料） | 尚未實作 | 需投稿條款：授權範圍、可公開、可刪除；照片可能含人臉或他人個資，M1 不收照片 |
+| 候選 repo `chains.json`／`add_chains.py`／`FALLBACK_VENUES` | 65 筆連鎖店，含評分、評論數、電話、地址 | **疑似人工捏造**（電話多為 `xxxx-1234` 型態、評分與評論數無來源、`is_verified: true`）。以真實品牌名義呈現虛構評分可能構成誤導，捏造的電話可能是第三方真實號碼。**不得搬移或上線** |
+| 候選 schema 的 `nomadlist`、`workfrom` 來源類型 | 只有 enum，未見爬取程式 | 第三方網站資料不得爬取，除非取得授權 |
+| Google 地圖／Places | 未使用 | Google 條款限制快取與再散布，不得作為資料來源 |
+| Cafe Nomad API | 未使用 | 授權條款待確認，確認前不得匯入 |
+
+### 7.2 個資
+
+- 店家電話、網站、營業時間來自 OSM 公開資料，屬營業資訊；但小型獨立店可能填寫負責人手機，收到要求應可隱藏（需提供回報管道，FR-011）。
+- M1 不收集 email、照片、帳號或任何可識別個人的資料；補資料只存在使用者本機瀏覽器，匯出由使用者自行操作。
+- 現有 `/landing` email 表單把 email 寫入 localStorage（mock）；M1 應移除或停用，避免使用者誤以為已訂閱。
+- 範例與測試資料一律使用明顯假資料（電話 `0900-000-xxx`、email `@example.com`）。
+
+## 8. 法規與風險
+
+| 風險 | 說明 | 對策 |
+|---|---|---|
+| ODbL 相同方式分享 | 合併資料庫可能需公開，影響資料授權收入 | 實測資料與 OSM 分表；正式收費前諮詢法律意見 |
+| 圖磚使用政策 | 流量增長時違反 OSM 圖磚政策 | M2 前改用有授權的圖磚供應商 |
+| 不實資訊／商譽 | 錯誤的「不限時」「Wi-Fi 快」可能損及店家或誤導使用者 | 修正 FR-003／FR-004；顯示來源與時間；提供回報 |
+| 付費刊登的廣告標示 | 付費排序未標示可能涉及不實或誤導廣告（公平交易法相關，細節待確認） | 贊助內容明確標示，且不得改動實測數字 |
+| 使用者評論 | 誹謗、不當內容 | M2 前設計審核流程（FR-015） |
+| 競品 | Cafe Nomad 已是在地先行者 | 以證據透明為差異；評估合作或引用其 API（需授權） |
+| 資料冷啟動 | 0 筆驗證 | M1 提供本機補資料＋匯出，讓 Sean 手動試點 |
+| 安全（候選 repo） | `reviews` insert/update、`favorites` FOR ALL 皆為 `USING (true)`；`venue_equipment` 公開讀取含 `wifi_password` 欄位；公開 API 用 service role key | 不搬移這些政策與欄位 |
+
+## 9. 里程碑
+
+| 里程碑 | 目標 | 主要內容 | 前提 |
+|---|---|---|---|
+| **M1 可信免費目錄整頓** | 修好品質閘門與部署，移除誤導，讓 Sean 能手動跑驗證試點 | 見 `GOAL.md` AC-001～AC-008 | Sean 決定不封存 |
+| M2 驗證資料試點 | 台北 50 間實測資料上線、測量流量 | 驗證資料後端（測試專案、與 OSM 分表）、審核與檢舉、資料新鮮度、授權圖磚、隱私友善流量統計 | 通過 §0 商業閘門前半（50 間＋流量） |
+| M3 收入實驗 | 驗證店家或聯盟是否願意付費 | 店家認領與贊助刊登（金流先測試模式）、聯盟連結、贊助標示、go／no-go 決策 | M2 指標達標；Sean 核准真實金流 |
+
+## 10. 成功指標
+
+| 層級 | 指標 | 目標 |
+|---|---|---|
+| M1（技術） | CI 全綠且失敗會擋部署；首屏 HTML 大小；`npm ci` 無需旗標 | AC 全數通過 |
+| M2（資料） | 已驗證店家數、單筆資料平均年齡 | ≥ 50 間（台北）；年齡目標待確認 |
+| M2（需求） | 每週自然流量、回訪率、補資料轉換率 | 目標值待 Sean 決定 |
+| M3（收入） | 店家刊登詢問數、聯盟點擊與核准 | ≥ 3 家詢問或 ≥ 1 個聯盟計畫（建議值） |
+
+## 11. 範圍外（整體）
+
+真實金流、使用者訂閱、真實 email 發送、真實網速 API、照片上傳、全球城市擴張、原生 App、爬取第三方網站資料。
+
+## 12. 合併清單（`nomad-cafe-map` → 主 repo）
+
+| 候選 repo 項目 | 處理 | 原因 |
+|---|---|---|
+| `supabase/init.sql` 的 `data_sources`（來源、來源 ID、同步時間）與 `sync_log` 概念 | **搬（僅概念，M2 重寫）** | 有助於標示資料來源與 ODbL 合規；需重寫 RLS |
+| `venue_equipment` 的 `data_confidence`、`last_equipment_check` 欄位概念 | **搬（僅概念，M2）** | 對應證據狀態與新鮮度（FR-005／FR-017） |
+| 連鎖／獨立切換 UI（`FilterPanel` chain_type） | **搬（M1 後的 P1，改用 OSM `brand`）** | 使用者有用；但資料改用主 repo OSM 的 `brand` 欄位 |
+| 深色模式切換 | 暫不搬（P2） | 非核心 |
+| `src/data/chains.json`、`add_chains.py`、`FALLBACK_VENUES` | **不搬** | 疑似捏造評分、電話、地址，違反證據優先原則與誤導風險 |
+| Mapbox GL（`mapbox-gl`、`react-map-gl`） | **不搬** | 需 token 與超量計費；Leaflet 已足夠 |
+| `/api/venues` 以 `SUPABASE_SERVICE_ROLE_KEY` 讀取公開資料 | **不搬** | 公開讀取不應使用最高權限金鑰；主 repo 為靜態 export |
+| RLS 政策（`USING (true)` 寫入） | **不搬** | 任何人可改他人評論與收藏 |
+| `wifi_password` 欄位 | **不搬** | 公開讀取會外洩店家密碼，店家可能反對 |
+| 38 個全球城市清單 | **不搬** | 台灣都還沒有驗證資料 |
+| `nomadlist`／`workfrom` 來源類型 | **不搬** | 第三方資料未授權 |
+
+候選 repo 無 `.env` 檔、無真實金鑰；README 與 `docs/deployment.md` 只有佔位字串（`pk.eyJ1...`、`<anon-key>`）。合併完成後是否封存 `nomad-cafe-map` 由 Sean 決定。
+
+## 13. README 與程式不符清單
+
+| # | 文件說法 | 程式／實況 |
+|---|---|---|
+| 1 | `STATUS.md`：189/189 tests、typecheck、build 皆通過 | GitHub 上 `ci.yml` 2 次執行全部失敗且 0 個 job；只有不跑測試的 `deploy.yml` 成功 |
+| 2 | `STATUS.md`：GitHub Pages 為 canonical，各路由 HTTP 200 | HTML 200，但 `/_next/static/...` JS 在 Pages 根路徑回 404（`next.config.mjs` 無 `basePath`），互動功能無法運作（2026-11-16 以 curl 實測） |
+| 3 | README：公開探索不處理付費、帳號、email、Stripe | `/landing`（email 表單）、`/admin`、`/verify`、`/cron/reminder-dry-run` 仍建置並公開；首頁導覽有「Pilot」連結；`stripe`、`@stripe/stripe-js`、`@supabase/*` 仍在 dependencies |
+| 4 | `SOP.md`：`src/data/cafes.ts` 把未知值轉成 0 | 已修正，現以 `unknownMetric()` 轉為 null；SOP 過時 |
+| 5 | v4 SPEC AC-008：React 改版需等 Sean 確認 | `STATUS.md` 已記載改版完成；兩份文件互相矛盾 |
+| 6 | `cafes-data.ts`：從 Overpass 自動生成 | 產生腳本不在 repo，無法重現 |
+| 7 | `DetailModal`：可匯出 localStorage 備份 | 沒有匯出功能，只教使用者開開發者工具 |
+| 8 | README：`npm ci --legacy-peer-deps` 原因是 react-leaflet | `src/` 已不使用 `react-leaflet`（`MapView.tsx` 直接用 `leaflet`），可移除該依賴 |
+| 9 | 快速篩選「Wi-Fi 50+ Mbps」 | 只有 OSM `wifi=yes`、無速度資料也會符合 |
+| 10 | 排序「最近更新」 | 實際依驗證人數排序 |
+| 11 | `PROJECT_STATE.md`、`MINIMAX_HANDOFF.md`、`FOUNDER_CHECKLIST.md` | 仍描述 Stage 5 付費牆（USD 4.99／月）與 founder 流程，已過時 |
+| 12 | 候選 README：「即時讀取 Supabase」「38+ 城市」「Next.js 14」 | 無 Supabase 設定時回傳捏造的 `chains.json`；`package.json` 為 Next.js 16.2.2 |
+
+## 14. 待 Sean 決定
+
+1. 接受「暫緩」或改為「封存」，或否決並進入 M1。
+2. §0 的 M2 商業閘門數字（50 間、流量成長、3 家詢問）是否採用。
+3. 正式網址只保留一個（Vercel 或 GitHub Pages）。
+4. 舊根目錄 `components/`、`lib/`、`data/`、`types/`（未被編譯）與 Stage 5 文件（`PROJECT_STATE.md`、`MINIMAX_HANDOFF.md`、`FOUNDER_CHECKLIST.md`）要刪除或移到 `archive/`。
+5. 是否與 `rv-supply-map` 抽共用 POI／證據模組。
+6. 合併後是否封存 `nomad-cafe-map`。
+7. 是否諮詢 ODbL 法律意見（M3 收費前必須）。
